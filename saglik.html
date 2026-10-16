@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">MozaikHane - Sağlık & Yaşam Mozaik Duvarı</title>
+    <!-- Üst Sekme (Favicon) - Yeni Geometrik Mozaik Tasarımı -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%2338bdf8'/><stop offset='100%' stop-color='%237e22ce'/></linearGradient></defs><rect x='2' y='2' width='32' height='32' rx='8' fill='%230f172a' stroke='url(%23g)' stroke-width='2'/><g transform='translate(6, 6)'><rect x='0' y='0' width='9' height='9' rx='2' fill='%23ffffff'/><rect x='11' y='0' width='9' height='9' rx='2' fill='%230f172a' opacity='0.6'/><rect x='0' y='11' width='9' height='9' rx='2' fill='%230f172a' opacity='0.6'/><rect x='11' y='11' width='9' height='9' rx='2' fill='%23ffffff'/></g></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #0b0f19; color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 4px 20px; background: #111827; border-bottom: 1px solid #1f2937; flex-shrink: 0; }
+        
+        /* Sol Üst Geometrik Mozaik Logo Stili */
+        .logo-area { display: flex; align-items: center; gap: 10px; font-family: 'Orbitron', sans-serif; text-decoration: none; }
+        .logo-box { width: 32px; height: 32px; background: linear-gradient(135deg, #38bdf8, #7e22ce); border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); border: 1px solid rgba(255,255,255,0.15); flex-shrink: 0; }
+        .logo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; width: 18px; height: 18px; }
+        .logo-grid div:nth-child(1), .logo-grid div:nth-child(4) { background: #ffffff; border-radius: 2px; }
+        .logo-grid div:nth-child(2), .logo-grid div:nth-child(3) { background: rgba(15, 23, 42, 0.6); border-radius: 2px; }
+        
+        .logo-texts { display: flex; flex-direction: column; }
+        .logo-texts .brand-name { font-size: 0.95rem; letter-spacing: 0.5px; color: #fff; font-weight: 900; }
+        .logo-texts .brand-name span { color: #38bdf8; }
+        .logo-texts span.tagline { font-size: 0.4rem; color: #9ca3af; font-weight: 600; letter-spacing: 0.8px; font-family: 'Segoe UI', sans-serif; }
+
+        .back-btn { background: #1f2937; color: #38bdf8; border: 1px solid #334155; padding: 3px 8px; font-size: 0.65rem; font-weight: bold; border-radius: 5px; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .back-btn:hover { background: #38bdf8; color: #0b0f19; }
+        
+        .header-center { display: flex; align-items: center; gap: 12px; }
+        .header-title h2 { font-size: 0.9rem; color: #38bdf8; letter-spacing: 1px; font-family: 'Orbitron', sans-serif; }
+        .header-title p { font-size: 0.5rem; color: #9ca3af; text-align: left; }
+
+        .header-right { display: flex; align-items: center; gap: 10px; }
+        .lang-select { background: #111827; color: #38bdf8; border: 1px solid #334155; padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; outline: none; font-family: 'Orbitron', sans-serif; }
+        .header-right-info { font-size: 0.6rem; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 3px 8px; border-radius: 5px; border: 1px solid rgba(56, 189, 248, 0.2); }
+        
+        .container { width: 100%; flex: 1; min-height: 0; margin: 0 auto; padding: 4px 10px; display: flex; flex-direction: column; overflow-x: auto; }
+        
+        /* Mobil Uyumlu Grid Kapsayıcısı */
+        .grid-wrapper { flex: 1; min-height: 0; width: 100%; overflow-x: auto; overflow-y: hidden; display: flex; align-items: center; }
+        .mosaic-grid { display: grid; grid-template-columns: repeat(25, minmax(0, 1fr)); grid-template-rows: repeat(20, minmax(0, 1fr)); gap: 1px; width: 100%; min-width: 750px; height: 100%; background: #111827; padding: 2px; border: 1px solid #1f2937; border-radius: 6px; }
+        
+        .slot { background-color: #1e293b; border: 1px solid #334155; display: flex; align-items: center; justify-content: center; font-size: 0.35rem; color: #94a3b8; cursor: pointer; transition: all 0.2s ease; position: relative; border-radius: 1px; width: 100%; height: 100%; overflow: hidden; min-height: 0; }
+        .slot:hover { border-color: #34d399; transform: scale(1.3); z-index: 10; box-shadow: 0 0 10px rgba(52,211,153,0.6); background-color: #0f172a; }
+
+        @keyframes bgGradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        @keyframes textGlow { 0% { text-shadow: 0 0 2px #fff, 0 0 5px #34d399; } 100% { text-shadow: 0 0 8px #fff, 0 0 15px #059669; } }
+
+        .banner-content { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; overflow: hidden; padding: 2px; position: relative; }
+        .marquee-wrapper { width: 100%; overflow: hidden; white-space: nowrap; position: absolute; top: 2px; left: 0; text-align: center; }
+        .marquee-text { display: inline-block; font-family: 'Orbitron', sans-serif; animation: scrollText linear infinite, textGlow 1.5s ease-in-out infinite alternate; color: #fff; letter-spacing: 1px; font-size: 0.35rem; font-weight: 700; padding: 0 50%; will-change: transform; }
+        .banner-logo { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; margin-top: 6px; filter: drop-shadow(0 0 4px rgba(0,0,0,0.6)); font-size: 0.75rem; }
+        .banner-logo img { max-width: 75%; max-height: 75%; object-fit: contain; border-radius: 4px; }
+        .platform-badge { position: absolute; top: 2px; right: 2px; background: transparent; border-radius: 3px; padding: 2px 4px; z-index: 5; display: flex; align-items: center; justify-content: center; font-size: 0.5rem; }
+
+        .slot.filled, .slot.large-banner, .slot.mega-banner { 
+            background: linear-gradient(270deg, #064e3b, #047857, #0284c7) !important; 
+            background-size: 200% 200% !important; 
+            border: 1px solid #34d399 !important; 
+            animation: bgGradientShift 4s ease infinite; 
+        }
+
+        .slot.large-banner .marquee-text { font-size: 0.55rem; font-weight: 700; }
+        .slot.large-banner .banner-logo { font-size: 1.3rem; margin-top: 10px; }
+        .slot.large-banner .platform-badge { font-size: 0.8rem; top: 4px; right: 4px; padding: 3px 6px; }
+
+        .slot.mega-banner .marquee-text { font-size: 0.75rem; font-weight: 900; }
+        .slot.mega-banner .banner-logo { font-size: 1.8rem; margin-top: 14px; }
+        .slot.mega-banner .platform-badge { font-size: 1.2rem; top: 6px; right: 6px; padding: 4px 8px; }
+
+        .slot:hover::after { content: attr(data-tooltip); position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%); background: #059669; color: #fff; padding: 4px 8px; border-radius: 5px; font-size: 0.65rem; white-space: nowrap; pointer-events: none; box-shadow: 0 4px 8px rgba(0,0,0,0.4); z-index: 20; }
+        .mosaic-footer { display: flex; justify-content: space-between; width: 100%; padding: 4px 0 2px 0; font-size: 0.6rem; color: #9ca3af; flex-shrink: 0; }
+        .mosaic-footer span { color: #38bdf8; font-weight: bold; }
+        .admin-reset-btn { cursor: pointer; margin-left: 15px; color: #ef4444; border: 1px solid #ef4444; padding: 2px 6px; border-radius: 4px; transition: 0.2s; }
+        .admin-reset-btn:hover { background: #ef4444; color: #fff; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100; }
+        .modal-box { background: #111827; border: 1px solid #1f2937; border-top: 4px solid #38bdf8; border-radius: 8px; width: 400px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
+        .modal-close { position: absolute; top: 10px; right: 15px; font-size: 1.2rem; color: #9ca3af; cursor: pointer; }
+        .modal-close:hover { color: #fff; }
+        .modal-header h3 { color: #fff; font-size: 1.1rem; margin-bottom: 5px; font-family: 'Orbitron', sans-serif; }
+        .modal-header p { color: #38bdf8; font-size: 0.75rem; margin-bottom: 15px; font-weight: bold; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 0.75rem; color: #d1d5db; margin-bottom: 4px; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; background: #1f2937; border: 1px solid #374151; color: #fff; border-radius: 4px; font-size: 0.8rem; outline: none; }
+        .file-upload-area { display: none; margin-top: 8px; padding: 10px; border: 1px dashed #38bdf8; border-radius: 4px; background: rgba(56, 189, 248, 0.05); text-align: center; }
+        .file-upload-area input[type="file"] { font-size: 0.7rem; background: transparent; border: none; color: #9ca3af; }
+        .price-calc { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #334155; }
+        .price-calc span { font-size: 0.8rem; color: #9ca3af; }
+        .price-calc strong { font-size: 1.1rem; color: #38bdf8; font-family: 'Orbitron', sans-serif;}
+        .btn-submit { width: 100%; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; padding: 12px; font-size: 0.9rem; font-weight: bold; border-radius: 5px; cursor: pointer; transition: all 0.3s; font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
+        .btn-submit:hover { opacity: 0.9; box-shadow: 0 0 10px rgba(56,189,248,0.5); }
+
+        @media (max-width: 768px) {
+            header { padding: 4px 10px; }
+            .logo-texts span.tagline { display: none; }
+            .modal-box { width: 90%; padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-center">
+            <a href="index.html" class="back-btn" id="backBtn">← Ana Sayfa</a>
+            <a href="index.html" class="logo-area">
+                <div class="logo-box">
+                    <div class="logo-grid">
+                        <div></div><div></div><div></div><div></div>
+                    </div>
+                </div>
+                <div class="logo-texts">
+                    <span class="brand-name">Mozaik<span>Hane</span></span>
+                    <span class="tagline">GLOBAL CREATOR GROWTH</span>
+                </div>
+            </a>
+        </div>
+        <div class="header-title">
+            <p id="pageSubTitle">Sağlık & Yaşam Mozaik Duvarı</p>
+        </div>
+        <div class="header-right">
+            <select class="lang-select" id="langSelect" onchange="changeLanguage(this.value)">
+                <option value="tr">TR</option>
+                <option value="en">EN</option>
+            </select>
+            <div class="header-right-info"><span id="priceLabel">Birim Fiyat:</span> <b style="font-family: 'Orbitron', sans-serif;">100 TL</b></div>
+        </div>
+    </header>
+    <div class="container">
+        <div class="grid-wrapper">
+            <div class="mosaic-grid" id="saglikDuvari"></div>
+        </div>
+        <div class="mosaic-footer">
+            <p><span id="footerText">Boş kutuya tıklayarak alan kiralayabilirsin.</span> <span class="admin-reset-btn" id="adminResetBtn">🗑️ Sıfırla</span></p>
+            <p><span id="occupancyText">Doluluk:</span> <span id="dolulukOrani">%0</span></p>
+        </div>
+    </div>
+    <div class="modal-overlay" id="checkoutModal">
+        <div class="modal-box">
+            <span class="modal-close" onclick="closeModal()">✕</span>
+            <div class="modal-header">
+                <h3 id="modalHead">Kanalını Vitrine Çıkar</h3>
+                <p id="selectedBoxInfo">Seçilen Merkez: Kutu #0</p>
+            </div>
+            <div class="form-group"><label id="lbl1">Kanal / Proje Adı</label><input type="text" id="channelInput" maxlength="30" placeholder="Örn: SağlıklıYaşam"></div>
+            <div class="form-group"><label id="lbl2">Platform URL (Link)</label><input type="text" id="urlInput" placeholder="https://..."></div>
+            <div class="form-group">
+                <label id="lbl3">Hedef Platform (Rozet)</label>
+                <select id="platformSelect">
+                    <option value="youtube">YouTube</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="web">Web Sitesi</option>
+                    <option value="tiktok">TikTok</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label id="lbl4">Kutu Merkez Logosu</label>
+                <select id="logoModeSelect" onchange="toggleFileUpload()">
+                    <option value="platform">Platform İkonu</option>
+                    <option value="custom">Özel Logo Yükle</option>
+                </select>
+                <div class="file-upload-area" id="customLogoArea"><input type="file" id="customLogoFile" accept="image/*"></div>
+            </div>
+            <div class="form-group">
+                <label id="lbl5">Alan Boyutu</label>
+                <select id="sizeSelect" onchange="updatePrice()">
+                    <option value="1">1x1 Alan (100 TL)</option>
+                    <option value="4">2x2 Alan (400 TL)</option>
+                    <option value="9">3x3 Alan (900 TL)</option>
+                </select>
+            </div>
+            <div class="price-calc"><span id="lbl6">Toplam Tutar:</span><strong id="totalPrice">100 TL</strong></div>
+            <button type="button" class="btn-submit" id="submitBtn" onclick="simulatePurchase()">Ödeme Yap (Shopier)</button>
+        </div>
+    </div>
+    <script>
+        // XSS Koruması için Girdi Temizleme (Sanitization) Fonksiyonu
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;")
+                      .replace(/"/g, "&quot;")
+                      .replace(/'/g, "&#039;");
+        }
+
+        const platformIcons = {
+            'youtube': '<i class="fa-brands fa-youtube" style="color: #ff0000;"></i>',
+            'twitch': '<i class="fa-brands fa-twitch" style="color: #9146FF;"></i>',
+            'instagram': '<i class="fa-brands fa-instagram" style="color: #E1306C;"></i>',
+            'tiktok': '<i class="fa-brands fa-tiktok" style="color: #ffffff;"></i>',
+            'x': '<span style="font-family: sans-serif; font-weight: bold; color: #ffffff;">𝕏</span>',
+            'web': '<i class="fa-solid fa-heart-pulse" style="color: #34d399;"></i>'
+        };
+
+        const duvar = document.getElementById('saglikDuvari');
+        const modal = document.getElementById('checkoutModal');
+        const sizeSelect = document.getElementById('sizeSelect');
+        const toplamKutu = 500; 
+        let currentSelectedNumber = 0;
+        const storageKey = 'mozaikhane_saglik_verisi';
+
+        let savedGrid = {};
+        try {
+            savedGrid = JSON.parse(localStorage.getItem(storageKey));
+        } catch (e) {
+            savedGrid = null;
+        }
+
+        if (!savedGrid) {
+            savedGrid = { 12: { size: 1, name: "SAGLIK VİP", url: "https://", platform: "web", logoMode: "platform", customLogo: "" } };
+            localStorage.setItem(storageKey, JSON.stringify(savedGrid));
+        }
+
+        for (let key in savedGrid) {
+            if (savedGrid[key]) {
+                let rawSize = parseInt(savedGrid[key].size);
+                if (rawSize === 9 || rawSize === 3) savedGrid[key].size = 9;
+                else if (rawSize === 4 || rawSize === 2) savedGrid[key].size = 4;
+                else savedGrid[key].size = 1;
+            }
+        }
+
+        let hiddenCells = [];
+        for (let key in savedGrid) {
+            let num = parseInt(key);
+            let size = savedGrid[key].size;
+            let spanLength = size === 9 ? 3 : (size === 4 ? 2 : 1);
+            for(let r = 0; r < spanLength; r++) {
+                for(let c = 0; c < spanLength; c++) {
+                    if (r === 0 && c === 0) continue; 
+                    hiddenCells.push(num + c + (r * 25));
+                }
+            }
+        }
+
+        let occupiedCount = Object.keys(savedGrid).length + hiddenCells.length;
+        let percent = ((occupiedCount / toplamKutu) * 100).toFixed(1);
+        document.getElementById('dolulukOrani').innerText = `%${percent}`;
+
+        for (let i = 1; i <= toplamKutu; i++) {
+            const slot = document.createElement('div');
+            slot.classList.add('slot');
+            slot.id = `slot-${i}`; 
+            
+            if (hiddenCells.includes(i)) { 
+                slot.style.display = 'none'; 
+                duvar.appendChild(slot); 
+                continue; 
+            }
+
+            if (savedGrid[i]) {
+                let data = savedGrid[i];
+                let platformKey = (data.platform || 'web').toLowerCase();
+                let badge = platformIcons[platformKey] || platformIcons['web'];
+                let logo = data.logoMode === 'custom' && data.customLogo ? `<img src="${data.customLogo}" alt="Logo">` : badge;
+
+                // XSS koruması uygulanmış güvenli isim
+                let safeName = escapeHtml(data.name || "MOZAIKHANE");
+                let textLength = safeName.length;
+                let scrollDuration = Math.max(5, textLength * 0.7);
+                let actualSize = parseInt(data.size) || 1;
+
+                if (actualSize === 9) { 
+                    slot.classList.add('mega-banner'); 
+                    slot.style.gridColumn = "span 3";
+                    slot.style.gridRow = "span 3";
+                    slot.setAttribute('data-tooltip', `${safeName} - 3x3`); 
+                } else if (actualSize === 4) { 
+                    slot.classList.add('large-banner'); 
+                    slot.style.gridColumn = "span 2";
+                    slot.style.gridRow = "span 2";
+                    slot.setAttribute('data-tooltip', `${safeName} - 2x2`); 
+                } else { 
+                    slot.classList.add('filled'); 
+                    slot.setAttribute('data-tooltip', `${safeName} - 1x1`); 
+                }
+
+                slot.innerHTML = `<div class="platform-badge">${badge}</div><div class="banner-content"><div class="marquee-wrapper"><span class="marquee-text" style="animation-duration: ${scrollDuration}s;">${safeName}</span></div><div class="banner-logo">${logo}</div></div>`;
+                
+                // Güvenli URL açılış kontrolü (Open Redirect / Phishing önlemi)
+                slot.onclick = () => {
+                    let targetUrl = data.url;
+                    if (targetUrl) {
+                        if (targetUrl.startsWith('javascript:') || targetUrl.startsWith('data:')) {
+                            alert('Geçersiz veya güvensiz bağlantı!');
+                            return;
+                        }
+                        if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+                            targetUrl = 'https://' + targetUrl;
+                        }
+                        window.open(targetUrl, '_blank');
+                    } else {
+                        alert(`${safeName} kanalına yönlendiriliyor!`);
+                    }
+                };
+
+                slot.oncontextmenu = function(e) {
+                    e.preventDefault();
+                    const lang = localStorage.getItem('mozaikhane_lang') || 'tr';
+                    const msg = lang === 'tr' ? `Kutu #${i} üzerindeki "${safeName}" silinsin mi?` : `Delete "${safeName}" on Slot #${i}?`;
+                    if (confirm(msg)) {
+                        delete savedGrid[i];
+                        localStorage.setItem(storageKey, JSON.stringify(savedGrid));
+                        location.reload();
+                    }
+                };
+            } else {
+                slot.innerText = `#${i}`;
+                const lang = localStorage.getItem('mozaikhane_lang') || 'tr';
+                slot.setAttribute('data-tooltip', lang === 'tr' ? `Kutu #${i} - Boş` : `Slot #${i} - Empty`);
+                slot.onclick = function() { openModal(i); };
+            }
+            duvar.appendChild(slot);
+        }
+
+        document.getElementById('adminResetBtn').onclick = function() {
+            const lang = localStorage.getItem('mozaikhane_lang') || 'tr';
+            const msg = lang === 'tr' ? "Sağlık & Yaşam duvarı sıfırlansın mı?" : "Reset health & wellness wall?";
+            if (confirm(msg)) {
+                localStorage.removeItem(storageKey);
+                location.reload();
+            }
+        };
+
+        function openModal(boxNumber) {
+            currentSelectedNumber = boxNumber;
+            const lang = localStorage.getItem('mozaikhane_lang') || 'tr';
+            document.getElementById('selectedBoxInfo').innerText = lang === 'tr' ? `Seçilen Merkez: Kutu #${boxNumber}` : `Selected Center: Slot #${boxNumber}`;
+            modal.style.display = "flex";
+        }
+        function closeModal() { modal.style.display = "none"; }
+        function updatePrice() { document.getElementById('totalPrice').innerText = `${parseInt(sizeSelect.value) * 100} TL`; }
+        function toggleFileUpload() { document.getElementById('customLogoArea').style.display = document.getElementById('logoModeSelect').value === 'custom' ? 'block' : 'none'; }
+
+        function simulatePurchase() {
+            const size = parseInt(sizeSelect.value);
+            const col = ((currentSelectedNumber - 1) % 25) + 1;
+            const row = Math.floor((currentSelectedNumber - 1) / 25) + 1;
+            const spanLength = size === 9 ? 3 : (size === 4 ? 2 : 1);
+            const lang = localStorage.getItem('mozaikhane_lang') || 'tr';
+
+            if (col + spanLength - 1 > 25 || row + spanLength - 1 > 20) { 
+                alert(lang === 'tr' ? "HATA: Seçtiğiniz alan matristen taşıyor!" : "ERROR: Selected area exceeds the grid matrix!"); 
+                return; 
+            }
+
+            // Girdileri temizleyip alıyoruz (XSS koruması)
+            const rawName = document.getElementById('channelInput').value.trim();
+            const name = escapeHtml(rawName ? rawName.toUpperCase() : "SAGLIK");
+            const url = document.getElementById('urlInput').value.trim() || "https://";
+            const platform = document.getElementById('platformSelect').value;
+            const logoMode = document.getElementById('logoModeSelect').value;
+
+            if (logoMode === 'custom') {
+                const fileInput = document.getElementById('customLogoFile');
+                if (fileInput.files && fileInput.files[0]) {
+                    const file = fileInput.files[0];
+                    // Dosya boyutu sınırı (Max 500 KB - localStorage şişmesini önler)
+                    if (file.size > 500 * 1024) {
+                        alert(lang === 'tr' ? "HATA: Logo dosyası çok büyük (Max 500 KB olmalı)!" : "ERROR: Logo file is too large (Max 500 KB)!");
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = e => saveToMemory(currentSelectedNumber, size, name, url, platform, logoMode, e.target.result);
+                    reader.readAsDataURL(file);
+                    return;
+                }
+            }
+            saveToMemory(currentSelectedNumber, size, name, url, platform, logoMode, "");
+        }
+
+        function saveToMemory(id, size, name, url, platform, logoMode, customLogo) {
+            savedGrid[id] = { size, name, url, platform, logoMode, customLogo };
+            localStorage.setItem(storageKey, JSON.stringify(savedGrid));
+            location.reload();
+        }
+
+        const translations = {
+            tr: { 
+                back: "← Ana Sayfa", 
+                sub: "Sağlık & Yaşam Mozaik Duvarı", 
+                price: "Birim Fiyat:", 
+                footer: "Boş kutuya tıklayarak alan kiralayabilirsin.", 
+                occ: "Doluluk:", 
+                modalH: "Kanalını Vitrine Çıkar", 
+                l1: "Kanal / Proje Adı", 
+                l2: "Platform URL (Link)", 
+                l3: "Hedef Platform (Rozet)", 
+                l4: "Kutu Merkez Logosu", 
+                l5: "Alan Boyutu", 
+                l6: "Toplam Tutar:", 
+                btn: "Ödeme Yap (Shopier)" 
+            },
+            en: { 
+                back: "← Home", 
+                sub: "Health & Wellness Mosaic Wall", 
+                price: "Unit Price:", 
+                footer: "Click an empty slot to claim your spot.", 
+                occ: "Occupancy:", 
+                modalH: "Showcase Your Channel", 
+                l1: "Channel / Project Name", 
+                l2: "Platform URL", 
+                l3: "Target Platform (Badge)", 
+                l4: "Center Logo", 
+                l5: "Grid Size", 
+                l6: "Total Amount:", 
+                btn: "Secure Checkout (Shopier)" 
+            }
+        };
+
+        function changeLanguage(lang) {
+            localStorage.setItem('mozaikhane_lang', lang);
+            const t = translations[lang];
+            if (!t) return;
+            document.getElementById('backBtn').innerText = t.back;
+            document.getElementById('pageSubTitle').innerText = t.sub;
+            document.getElementById('priceLabel').innerText = t.price;
+            document.getElementById('footerText').innerText = t.footer;
+            document.getElementById('occupancyText').innerText = t.occ;
+            document.getElementById('modalHead').innerText = t.modalH;
+            document.getElementById('lbl1').innerText = t.l1;
+            document.getElementById('lbl2').innerText = t.l2;
+            document.getElementById('lbl3').innerText = t.l3;
+            document.getElementById('lbl4').innerText = t.l4;
+            document.getElementById('lbl5').innerText = t.l5;
+            document.getElementById('lbl6').innerText = t.l6;
+            document.getElementById('submitBtn').innerText = t.btn;
+        }
+
+        const savedLang = localStorage.getItem('mozaikhane_lang') || 'tr';
+        document.getElementById('langSelect').value = savedLang;
+        changeLanguage(savedLang);
+    </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<header>
+    <div class="logo-area" style="display: flex; align-items: center; gap: 12px; font-family: 'Orbitron', sans-serif;">
+        <!-- Geometrik Mozaik Logosu -->
+        <div style="width: 38px; height: 38px; background: linear-gradient(135deg, #38bdf8, #7e22ce); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); border: 1px solid rgba(255,255,255,0.2); position: relative; overflow: hidden;">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 3px; width: 22px; height: 22px;">
+                <div style="background: #ffffff; border-radius: 3px;"></div>
+                <div style="background: rgba(15, 23, 42, 0.6); border-radius: 3px;"></div>
+                <div style="background: rgba(15, 23, 42, 0.6); border-radius: 3px;"></div>
+                <div style="background: #ffffff; border-radius: 3px;"></div>
+            </div>
+        </div>
+        
+        <div class="logo-texts" style="display: flex; flex-direction: column;">
+            <span class="brand-name" style="font-size: 1.15rem; color: #fff; font-weight: 900; letter-spacing: 0.8px;">Pop<span style="color: #38bdf8; text-shadow: 0 0 10px rgba(56,189,248,0.5);">Grid</span></span>
+            <span style="font-size: 0.45rem; color: #94a3b8; font-weight: 600; letter-spacing: 1.5px; font-family: 'Segoe UI', sans-serif;">GLOBAL CREATOR GROWTH</span>
+        </div>
+    </div>
+    
+    <div class="header-right">
+        <div class="header-badge"><span id="headerBadgeTitle">Aktif Kategori:</span> <b>15</b></div>
+        <select class="lang-select" id="langSelect" onchange="changeLanguage(this.value)">
+            <option value="tr">TR - Türkçe</option>
+            <option value="en">EN - English</option>
+        </select>
+    </div>
+</header>

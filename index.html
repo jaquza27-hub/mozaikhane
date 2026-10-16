@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">MozaikHane - Global Creator & Marka Platformu</title>
+    <!-- Üst Sekme (Favicon) - Yeni Geometrik Mozaik Tasarımı -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%2338bdf8'/><stop offset='100%' stop-color='%237e22ce'/></linearGradient></defs><rect x='2' y='2' width='32' height='32' rx='8' fill='%230f172a' stroke='url(%23g)' stroke-width='2'/><g transform='translate(6, 6)'><rect x='0' y='0' width='9' height='9' rx='2' fill='%23ffffff'/><rect x='11' y='0' width='9' height='9' rx='2' fill='%230f172a' opacity='0.6'/><rect x='0' y='11' width='9' height='9' rx='2' fill='%230f172a' opacity='0.6'/><rect x='11' y='11' width='9' height='9' rx='2' fill='%23ffffff'/></g></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #0b0f19; color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 6px 20px; background: #111827; border-bottom: 1px solid #1f2937; flex-shrink: 0; }
+        
+        /* Sol Üst Geometrik Mozaik Logo Stili */
+        .logo-area { display: flex; align-items: center; gap: 8px; font-family: 'Orbitron', sans-serif; text-decoration: none; }
+        .logo-box { width: 30px; height: 30px; background: linear-gradient(135deg, #38bdf8, #7e22ce); border-radius: 7px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); border: 1px solid rgba(255,255,255,0.15); flex-shrink: 0; }
+        .logo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; width: 16px; height: 16px; }
+        .logo-grid div:nth-child(1), .logo-grid div:nth-child(4) { background: #ffffff; border-radius: 2px; }
+        .logo-grid div:nth-child(2), .logo-grid div:nth-child(3) { background: rgba(15, 23, 42, 0.6); border-radius: 2px; }
+        
+        .logo-texts { display: flex; flex-direction: column; }
+        .logo-texts .brand-name { font-size: 0.9rem; letter-spacing: 0.5px; color: #fff; font-weight: 900; }
+        .logo-texts .brand-name span { color: #38bdf8; }
+        .logo-texts span.tagline { font-size: 0.4rem; color: #9ca3af; font-weight: 600; letter-spacing: 0.8px; font-family: 'Segoe UI', sans-serif; }
+
+        .header-right { display: flex; align-items: center; gap: 10px; }
+        .active-category-badge { font-size: 0.65rem; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.2); font-family: 'Orbitron', sans-serif; font-weight: 700; }
+        .lang-select { background: #111827; color: #38bdf8; border: 1px solid #334155; padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; cursor: pointer; outline: none; font-family: 'Orbitron', sans-serif; font-weight: 700; }
+
+        /* Ana Konteyner - Dinamik Esnek Yapı */
+        .container { width: 100%; max-width: 1550px; flex: 1; margin: 0 auto; padding: 6px 15px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+        
+        /* Kategori Kartları Grid (Dinamik Üretim) */
+        .categories-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .category-card { background: #111827; border: 1px solid #1f2937; border-radius: 7px; padding: 10px; text-decoration: none; color: #fff; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease; position: relative; overflow: hidden; height: 96px; }
+        .category-card:hover { border-color: #38bdf8; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2); background: #162032; }
+        
+        .cat-icon-title { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; }
+        .cat-icon-title i { font-size: 0.9rem; color: #38bdf8; }
+        .cat-icon-title h3 { font-size: 0.75rem; font-family: 'Orbitron', sans-serif; font-weight: 700; color: #f3f4f6; }
+        
+        .category-card p { font-size: 0.58rem; color: #9ca3af; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 4px; }
+        .cat-link { font-size: 0.6rem; color: #38bdf8; font-weight: bold; display: flex; align-items: center; gap: 3px; transition: 0.2s; }
+        .category-card:hover .cat-link { color: #f472b6; padding-left: 2px; }
+
+        /* İstatistik & Bilgi Kutuları Paneli */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .stat-box { background: #111827; border: 1px solid #1f2937; border-radius: 7px; padding: 6px; text-align: center; display: flex; flex-direction: column; justify-content: center; height: 42px; }
+        .stat-title { font-size: 0.55rem; color: #9ca3af; margin-bottom: 1px; }
+        .stat-value { font-size: 0.75rem; color: #38bdf8; font-family: 'Orbitron', sans-serif; font-weight: bold; }
+
+        /* Alt Bilgi & Tanıtım Kutuları */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 8px; }
+        .info-box { background: #111827; border: 1px solid #1f2937; border-radius: 7px; padding: 10px; display: flex; flex-direction: column; justify-content: center; height: 58px; }
+        .info-box.clickable { cursor: pointer; border-color: rgba(56, 189, 248, 0.4); background: linear-gradient(135deg, #111827, #172554); transition: all 0.2s; }
+        .info-box.clickable:hover { border-color: #38bdf8; transform: translateY(-2px); box-shadow: 0 0 10px rgba(56, 189, 248, 0.3); }
+        
+        .info-title { font-size: 0.68rem; color: #38bdf8; font-family: 'Orbitron', sans-serif; font-weight: bold; margin-bottom: 2px; display: flex; align-items: center; justify-content: space-between; }
+        .info-desc { font-size: 0.58rem; color: #9ca3af; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* Modal Pencereler */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 100; }
+        .modal-box { background: #111827; border: 1px solid #1f2937; border-top: 4px solid #38bdf8; border-radius: 10px; width: 480px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); position: relative; }
+        .modal-close { position: absolute; top: 12px; right: 18px; font-size: 1.3rem; color: #9ca3af; cursor: pointer; transition: 0.2s; }
+        .modal-close:hover { color: #fff; }
+        .modal-header h3 { color: #fff; font-size: 1.15rem; margin-bottom: 8px; font-family: 'Orbitron', sans-serif; }
+        .modal-body { font-size: 0.8rem; color: #d1d5db; line-height: 1.5; margin-bottom: 15px; }
+        .modal-body ul { margin-left: 18px; margin-top: 8px; }
+        .modal-body li { margin-bottom: 4px; }
+
+        footer { text-align: center; font-size: 0.55rem; color: #6b7280; padding: 3px 0; border-top: 1px solid #1f2937; flex-shrink: 0; }
+        footer span { color: #38bdf8; }
+
+        /* Gelişmiş Responsive / Mobil Uyumluluk Optimizasyonu */
+        @media (max-width: 1200px) {
+            body { height: auto; overflow: auto; }
+            .container { overflow: visible; height: auto; padding: 12px; gap: 12px; }
+            .categories-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+            .category-card { height: 105px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .stat-box { height: 48px; }
+            .info-grid { grid-template-columns: 1fr; gap: 10px; }
+            .info-box { height: 65px; }
+        }
+
+        @media (max-width: 768px) {
+            .categories-grid { grid-template-columns: repeat(2, 1fr); }
+            .logo-texts span.tagline { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            .categories-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <!-- Sol Üst Geometrik Mozaik Logosu -->
+        <a href="index.html" class="logo-area">
+            <div class="logo-box">
+                <div class="logo-grid">
+                    <div></div><div></div><div></div><div></div>
+                </div>
+            </div>
+            <div class="logo-texts">
+                <span class="brand-name">Mozaik<span>Hane</span></span>
+                <span class="tagline">GLOBAL CREATOR GROWTH</span>
+            </div>
+        </a>
+        <div class="header-right">
+            <div class="active-category-badge" id="activeCategoryLabel">Aktif Kategori: 15</div>
+            <select class="lang-select" id="langSelect" onchange="changeLanguage(this.value)">
+                <option value="tr">TR - Türkçe</option>
+                <option value="en">EN - English</option>
+            </select>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Kategoriler Grid (JavaScript ile Dinamik Üretilir) -->
+        <div class="categories-grid" id="categoriesGrid"></div>
+
+        <!-- İstatistik Kutuları -->
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-title" id="stat1Label">Toplam Ziyaretçi</div>
+                <div class="stat-value" id="statVisitorValue">14.340</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title" id="stat2Label">Şuan İnceleyen (Aktif)</div>
+                <div class="stat-value" id="statActiveValue">49 Kişi</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title" id="stat3Label">Ortalama Doluluk Oranı</div>
+                <div class="stat-value">%0.6</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title" id="stat4Label">Güvenli Ödeme Altyapısı</div>
+                <div class="stat-value">Shopier</div>
+            </div>
+        </div>
+
+        <!-- Alt Bilgi & Tanıtım Kutuları -->
+        <div class="info-grid">
+            <div class="info-box clickable" onclick="openWhyUsModal()">
+                <div class="info-title"><span id="info1Head">MozaikHane Nedir & Neden Tercih Etmelisiniz?</span> <i class="fa-solid fa-circle-info" style="color: #38bdf8;"></i></div>
+                <div class="info-desc" id="info1Desc">Global Creator Growth vizyonu ile içerik üreticilerini ve markaları tek bir dijital mozaik duvarında buluşturan yeni nesil reklam ve vitrin platformudur. Detaylar için tıkla!</div>
+            </div>
+            <div class="info-box clickable" onclick="openHowToModal()">
+                <div class="info-title"><span id="info2Head">Nasıl Alan Kiralanır?</span> <i class="fa-solid fa-circle-question" style="color: #38bdf8;"></i></div>
+                <div class="info-desc" id="info2Desc">İstediğin kategori duvarına giderek boş kutulara tıklayabilir; 1x1, 2x2 veya 3x3 alan seçerek kanalını veya projeni 1 aylık süreyle vitrine çıkarabilirsin.</div>
+            </div>
+            <div class="info-box">
+                <div class="info-title"><span id="info3Head">Sınırsız Büyüme Fırsatı</span> <i class="fa-solid fa-rocket" style="color: #38bdf8;"></i></div>
+                <div class="info-desc" id="info3Desc">Kanalına özel kesintisiz akışlı banner'lar, doğrudan yönlendiren bağlantılar ve özel rozetlerle hedef kitlenize en hızlı şekilde ulaşın.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Neden Tercih Etmelisiniz Modal Bilgi Penceresi -->
+    <div class="modal-overlay" id="whyUsModal">
+        <div class="modal-box">
+            <span class="modal-close" onclick="closeWhyUsModal()">✕</span>
+            <div class="modal-header">
+                <h3 id="modalWhyHead">Neden MozaikHane'yi Tercih Etmelisiniz?</h3>
+            </div>
+            <div class="modal-body" id="modalWhyBody">
+                <p id="modalWhyText1">MozaikHane, içerik üreticilerinin ve dijital girişimlerin hak ettikleri kitleye ulaşmasını sağlayan devrim niteliğinde ortak bir dijital vitrindir.</p>
+                <ul id="modalWhyList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nasıl Kiralanır Modal Bilgi Penceresi -->
+    <div class="modal-overlay" id="howToModal">
+        <div class="modal-box">
+            <span class="modal-close" onclick="closeHowToModal()">✕</span>
+            <div class="modal-header">
+                <h3 id="modalHowHead">Alan Kiralama ve İşleyiş Rehberi</h3>
+            </div>
+            <div class="modal-body" id="modalHowBody">
+                <p id="modalHowText1">Mozaik duvarlarında yerinizi almak son derece kolay ve hızlıdır:</p>
+                <ul id="modalHowList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© <span id="currentYear"></span> MozaikHane. <span id="footerRights">Tüm hakları saklıdır.</span></p>
+    </footer>
+
+    <script>
+        // XSS Koruması için Girdi Temizleme (Sanitization) Fonksiyonu
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;")
+                      .replace(/"/g, "&quot;")
+                      .replace(/'/g, "&#039;");
+        }
+
+        document.getElementById('currentYear').innerText = new Date().getFullYear();
+
+        const categoriesData = [
+            { id: 1, file: "spor.html", icon: "fa-solid fa-gamepad", trTitle: "Oyun & Esports", enTitle: "Gaming & Esports", trDesc: "Popüler oyunlar, yayıncılar ve espor takımları için mozaik vitrin alanı.", enDesc: "Mosaic showcase area for popular games, streamers and esports teams." },
+            { id: 2, file: "teknoloji.html", icon: "fa-solid fa-microchip", trTitle: "Teknoloji & Yazılım", enTitle: "Tech & Software", trDesc: "Yazılım projeleri, girişimler ve teknoloji kanallarının buluşma noktası.", enDesc: "Meeting point for software projects, startups and technology channels." },
+            { id: 3, file: "vlog.html", icon: "fa-solid fa-video", trTitle: "Vlog & Yaşam", enTitle: "Vlog & Lifestyle", trDesc: "Günlük yaşam, seyahat ve deneyim odaklı vlog kanalları.", enDesc: "Daily life, travel and experience-oriented vlog channels." },
+            { id: 4, file: "eglence.html", icon: "fa-solid fa-face-laugh-beam", trTitle: "Eğlence & Mizah", enTitle: "Comedy & Humor", trDesc: "Komedi, mizah ve eğlence odaklı yaratıcı projeler.", enDesc: "Creative projects focused on comedy, humor and entertainment." },
+            { id: 5, file: "yemek.html", icon: "fa-solid fa-utensils", trTitle: "Yemek & Gastronomi", enTitle: "Food & Gastronomy", trDesc: "Tarifler, restoranlar ve gastronomi odaklı kanallar.", enDesc: "Recipes, restaurants and gastronomy-oriented channels." },
+            { id: 6, file: "finans.html", icon: "fa-solid fa-chart-line", trTitle: "Finans & Yatırım", enTitle: "Finance & Investment", trDesc: "Ekonomi, borsa ve yatırım dünyasına odaklanan içerikler.", enDesc: "Content focused on economics, stock market and investment." },
+            { id: 7, file: "muzik.html", icon: "fa-solid fa-music", trTitle: "Müzik & Sanat", enTitle: "Music & Art", trDesc: "Müzisyenler, sanatçılar ve ses prodüksiyon kanalları.", enDesc: "Musicians, artists and sound production channels." },
+            { id: 8, file: "egitim.html", icon: "fa-solid fa-graduation-cap", trTitle: "Eğitim & Bilim", enTitle: "Education & Science", trDesc: "Bilimsel paylaşımlar, dersler ve bilgilendirici içerikler.", enDesc: "Scientific shares, lectures and informative content." },
+            { id: 9, file: "spor_fitness.html", icon: "fa-solid fa-dumbbell", trTitle: "Spor & Fitness", enTitle: "Sports & Fitness", trDesc: "Spor kulüpleri, antrenörler ve fitness içerik üreticileri.", enDesc: "Sports clubs, trainers and fitness content creators." },
+            { id: 10, file: "oto.html", icon: "fa-solid fa-car", trTitle: "Oto ve Modifiye", enTitle: "Auto & Tuning", trDesc: "Araç incelemeleri, modifiye ve otomotiv dünyası.", enDesc: "Car reviews, tuning and automotive world." },
+            { id: 11, file: "moda.html", icon: "fa-solid fa-shirt", trTitle: "Moda & Güzellik", enTitle: "Fashion & Beauty", trDesc: "Stil, kombin, kozmetik ve moda dünyasına odaklanan içerikler.", enDesc: "Content focused on style, combination, cosmetics and fashion." },
+            { id: 12, file: "seyahat.html", icon: "fa-solid fa-plane", trTitle: "Seyahat & Keşif", enTitle: "Travel & Adventure", trDesc: "Dünya turu, kamp, gezi rehberleri ve macera vlogları.", enDesc: "World tour, camping, travel guides and adventure vlogs." },
+            { id: 13, file: "emlak.html", icon: "fa-solid fa-house-chimney", trTitle: "Emlak & Yatırım", enTitle: "Real Estate & Living", trDesc: "Konut projeleri, mimari tasarımlar ve gayrimenkul dünyası.", enDesc: "Housing projects, architectural designs and real estate world." },
+            { id: 14, file: "saglik.html", icon: "fa-solid fa-heart-pulse", trTitle: "Sağlık & Yaşam", enTitle: "Health & Wellness", trDesc: "Tıp, psikoloji, sağlıklı yaşam ve kişisel gelişim içerikleri.", enDesc: "Medicine, psychology, healthy living and personal development." },
+            { id: 15, file: "kripto.html", icon: "fa-solid fa-coins", trTitle: "Kripto & Web3", enTitle: "Crypto & Web3", trDesc: "Kripto paralar, blokzincir projeleri, NFT ve Web3 dünyası.", enDesc: "Cryptocurrencies, blockchain projects, NFT and Web3 world." }
+        ];
+
+        function openWhyUsModal() { document.getElementById('whyUsModal').style.display = 'flex'; }
+        function closeWhyUsModal() { document.getElementById('whyUsModal').style.display = 'none'; }
+        function openHowToModal() { document.getElementById('howToModal').style.display = 'flex'; }
+        function closeHowToModal() { document.getElementById('howToModal').style.display = 'none'; }
+
+        const translations = {
+            tr: {
+                pageTitle: "MozaikHane - Global Creator & Marka Platformu",
+                activeCat: "Aktif Kategori: 15",
+                goto: "Mozaik Duvarına Git →",
+                stat1: "Toplam Ziyaretçi", stat2: "Şuan İnceleyen (Aktif)", stat3: "Ortalama Doluluk Oranı", stat4: "Güvenli Ödeme Altyapısı",
+                i1Head: "MozaikHane Nedir & Neden Tercih Etmelisiniz?", i1Desc: "Global Creator Growth vizyonu ile içerik üreticilerini ve markaları tek bir dijital mozaik duvarında buluşturan yeni nesil reklam ve vitrin platformudur. Detaylar için tıkla!",
+                i2Head: "Nasıl Alan Kiralanır?", i2Desc: "İstediğin kategori duvarına giderek boş kutulara tıklayabilir; 1x1, 2x2 veya 3x3 alan seçerek kanalını veya projeni 1 aylık süreyle vitrine çıkarabilirsin.",
+                i3Head: "Sınırsız Büyüme Fırsatı", i3Desc: "Kanalına özel kesintisiz akışlı banner'lar, doğrudan yönlendiren bağlantılar ve özel rozetlerle hedef kitlenize en hızlı şekilde ulaşın.",
+                modalWhyHead: "Neden MozaikHane'yi Tercih Etmelisiniz?",
+                modalWhyText1: "MozaikHane, içerik üreticilerinin ve dijital girişimlerin hak ettikleri kitleye ulaşmasını sağlayan devrim niteliğinde ortak bir dijital vitrindir.",
+                modalWhyItems: [
+                    "<b>Kalıcı ve Etkileyici Görünürlük:</b> Geleneksel reklamların aksine mozaik duvarımızda projeniz 7/24 kesintisiz sergilenir.",
+                    "<b>Hedef Odaklı Kitle:</b> İlgili kategori sayfaları sayesinde doğrudan kendi niş kitlenizle buluşursunuz.",
+                    "<b>Yüksek SEO ve Trafik Gücü:</b> Platformumuzun artan ziyaretçi trafiği ile kanalınıza doğrudan organik akış sağlarsınız.",
+                    "<b>Uygun Maliyet, Yüksek Etki:</b> Klasik reklam bütçeleri harcamadan çok uygun fiyatlarla uzun süreli dijital prestij kazanırsınız."
+                ],
+                modalHowHead: "Alan Kiralama ve İşleyiş Rehberi",
+                modalHowText1: "Mozaik duvarlarında yerinizi almak son derece kolay ve hızlıdır:",
+                modalHowItems: [
+                    "<b>1. Kategorini Seç:</b> Sektörüne veya projenine en uygun kategori duvarını seç.",
+                    "<b>2. Boş Kutu Seç:</b> 500 birimlik matris üzerinde dilediğin boş kutuya tıkla.",
+                    "<b>3. Boyutunu Belirle:</b> İhtiyacına göre 1x1, 2x2 veya 3x3 alan boyutlarından birini seç.",
+                    "<b>4. Bilgilerini Gir:</b> Kanal adını, yönlendirme linkini ve rozet/logo tercihini ekle.",
+                    "<b>5. Güvenli Ödeme:</b> Shopier altyapısı ile güvenli ödemeni tamamla ve vitrindeki yerini hemen al!"
+                ],
+                footerRights: "Tüm hakları saklıdır."
+            },
+            en: {
+                pageTitle: "MozaikHane - Global Creator & Brand Platform",
+                activeCat: "Active Category: 15",
+                goto: "Go to Mosaic Wall →",
+                stat1: "Total Visitors", stat2: "Currently Browsing (Active)", stat3: "Average Occupancy Rate", stat4: "Secure Payment Infrastructure",
+                i1Head: "What is MozaikHane & Why Choose Us?", i1Desc: "A next-gen advertising platform uniting creators and brands on a digital mosaic wall. Click for details!",
+                i2Head: "How to Claim a Spot?", i2Desc: "Click empty slots in any category wall, choose 1x1, 2x2 or 3x3 size to showcase your channel for 1 month.",
+                i3Head: "Unlimited Growth Opportunity", i3Desc: "Reach your target audience instantly with custom animated banners, direct links, and badges.",
+                modalWhyHead: "Why Should You Choose MozaikHane?",
+                modalWhyText1: "MozaikHane is a revolutionary shared digital showcase enabling creators and digital startups to reach their target audience.",
+                modalWhyItems: [
+                    "<b>Permanent & Impressive Visibility:</b> Unlike traditional ads, your project is displayed 24/7 on our mosaic wall.",
+                    "<b>Targeted Audience:</b> Connect directly with your niche audience through dedicated category pages.",
+                    "<b>High SEO & Traffic Power:</b> Drive organic traffic directly to your channel with our growing visitor base.",
+                    "<b>Affordable Cost, High Impact:</b> Gain long-term digital prestige at very affordable prices without massive ad budgets."
+                ],
+                modalHowHead: "Spot Claiming & Workflow Guide",
+                modalHowText1: "Claiming your spot on the mosaic walls is extremely quick and easy:",
+                modalHowItems: [
+                    "<b>1. Choose Category:</b> Select the category wall that best fits your sector or project.",
+                    "<b>2. Pick Empty Slot:</b> Click any available slot on the 500-unit grid matrix.",
+                    "<b>3. Set Grid Size:</b> Choose 1x1, 2x2 or 3x3 size according to your promotional needs.",
+                    "<b>4. Enter Details:</b> Add your channel name, redirect link, and badge/logo preference.",
+                    "<b>5. Secure Checkout:</b> Complete your secure payment via Shopier and take your place instantly!"
+                ],
+                footerRights: "All rights reserved."
+            }
+        };
+
+        function renderCategories(lang) {
+            const grid = document.getElementById('categoriesGrid');
+            grid.innerHTML = "";
+            const gotoText = escapeHtml(translations[lang].goto);
+
+            categoriesData.forEach(cat => {
+                const title = escapeHtml(lang === 'tr' ? cat.trTitle : cat.enTitle);
+                const desc = escapeHtml(lang === 'tr' ? cat.trDesc : cat.enDesc);
+                const safeFile = escapeHtml(cat.file);
+                const safeIcon = escapeHtml(cat.icon);
+
+                const card = document.createElement('a');
+                card.href = safeFile;
+                card.className = 'category-card';
+                card.innerHTML = `
+                    <div>
+                        <div class="cat-icon-title"><i class="${safeIcon}"></i><h3 id="c${cat.id}">${title}</h3></div>
+                        <p id="c${cat.id}_desc">${desc}</p>
+                    </div>
+                    <div class="cat-link" id="goto${cat.id}">${gotoText}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Güvenli Liste Elemanı Üretme Fonksiyonu (XSS Korumalı)
+        function renderSafeList(elementId, items) {
+            const listEl = document.getElementById(elementId);
+            if (!listEl) return;
+            listEl.innerHTML = "";
+            items.forEach(htmlContent => {
+                const li = document.createElement('li');
+                li.innerHTML = htmlContent; // Güvenli statik metinler
+                listEl.appendChild(li);
+            });
+        }
+
+        function changeLanguage(lang) {
+            try {
+                localStorage.setItem('mozaikhane_lang', lang);
+            } catch (e) {
+                console.error("Storage error:", e);
+            }
+
+            const t = translations[lang];
+            if (!t) return;
+
+            document.getElementById('pageTitle').innerText = t.pageTitle;
+            document.getElementById('activeCategoryLabel').innerText = t.activeCat;
+            renderCategories(lang);
+
+            document.getElementById('stat1Label').innerText = t.stat1;
+            document.getElementById('stat2Label').innerText = t.stat2;
+            document.getElementById('stat3Label').innerText = t.stat3;
+            document.getElementById('stat4Label').innerText = t.stat4;
+
+            document.getElementById('info1Head').innerText = t.i1Head;
+            document.getElementById('info1Desc').innerText = t.i1Desc;
+            document.getElementById('info2Head').innerText = t.i2Head;
+            document.getElementById('info2Desc').innerText = t.i2Desc;
+            document.getElementById('info3Head').innerText = t.i3Head;
+            document.getElementById('info3Desc').innerText = t.i3Desc;
+
+            document.getElementById('modalWhyHead').innerText = t.modalWhyHead;
+            document.getElementById('modalWhyText1').innerText = t.modalWhyText1;
+            renderSafeList('modalWhyList', t.modalWhyItems);
+
+            document.getElementById('modalHowHead').innerText = t.modalHowHead;
+            document.getElementById('modalHowText1').innerText = t.modalHowText1;
+            renderSafeList('modalHowList', t.modalHowItems);
+
+            document.getElementById('footerRights').innerText = t.footerRights;
+        }
+
+        let savedLang = 'tr';
+        try {
+            savedLang = localStorage.getItem('mozaikhane_lang') || 'tr';
+        } catch (e) {
+            savedLang = 'tr';
+        }
+
+        const langSelect = document.getElementById('langSelect');
+        if (langSelect) {
+            langSelect.value = savedLang;
+        }
+        changeLanguage(savedLang);
+
+        // Performans Optimizasyonu: Sekme Arkaplandayken İşlem Yapmayı Durdurma
+        setInterval(() => {
+            if (document.hidden) return;
+
+            const activeEl = document.getElementById('statActiveValue');
+            const visitorEl = document.getElementById('statVisitorValue');
+            
+            let currentLang = 'tr';
+            try {
+                currentLang = localStorage.getItem('mozaikhane_lang') || 'tr';
+            } catch (e) {
+                currentLang = 'tr';
+            }
+            
+            let currentActive = 45 + Math.floor(Math.random() * 12);
+            if (activeEl) {
+                activeEl.innerText = currentActive + (currentLang === 'tr' ? ' Kişi' : ' Users');
+            }
+
+            let currentVisitor = 14340 + Math.floor(Math.random() * 5);
+            if (visitorEl) {
+                visitorEl.innerText = currentVisitor.toLocaleString('de-DE');
+            }
+        }, 4000);
+    </script>
+</body>
+</html>
