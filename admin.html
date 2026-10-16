@@ -29,7 +29,7 @@
     <script>
         function checkLogin() {
             const pass = document.getElementById('admin-pass').value;
-            // Buradaki şifreyi dilediğiniz gibi değiştirebilirsiniz
+            // Güncellenen yönetici şifreniz
             if (pass === 'Poyratlas7214663..') {
                 document.getElementById('login-box').style.display = 'none';
                 document.getElementById('admin-panel').style.display = 'block';
@@ -71,11 +71,11 @@
             let approvedSlots = JSON.parse(localStorage.getItem('approvedSlots') || '{}');
             
             const slot = pendingSlots[index];
-            approvedSlots[slot.id] = slot; // Onaylananlara ekle
+            approvedSlots[slot.id] = slot;
             
             localStorage.setItem('approvedSlots', JSON.stringify(approvedSlots));
             
-            pendingSlots.splice(index, 1); // Bekleyenlerden çıkar
+            pendingSlots.splice(index, 1);
             localStorage.setItem('pendingSlots', JSON.stringify(pendingSlots));
             
             loadRequests();
