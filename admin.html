@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>MozaikHane - Admin Paneli</title>
+    <style>
+        body { font-family: sans-serif; background: #0f172a; color: #fff; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: #1e293b; padding: 20px; border-radius: 8px; }
+        .slot-card { background: #334155; padding: 15px; margin-bottom: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+        button { background: #22c55e; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+        button.reject { background: #ef4444; }
+        #login-box { text-align: center; margin-top: 100px; }
+        input { padding: 8px; border-radius: 4px; border: 1px solid #ccc; margin-right: 5px; }
+    </style>
+</head>
+<body>
+
+    <div id="login-box">
+        <h2>Yönetici Girişi</h2>
+        <input type="password" id="admin-pass" placeholder="Şifrenizi girin">
+        <button onclick="checkLogin()">Giriş Yap</button>
+    </div>
+
+    <div id="admin-panel" class="container" style="display:none;">
+        <h2>Onay Bekleyen Slot Talepleri</h2>
+        <div id="requests-list">Henüz talep yok.</div>
+    </div>
+
+    <script>
+        function checkLogin() {
+            const pass = document.getElementById('admin-pass').value;
+            // Buradaki şifreyi dilediğiniz gibi değiştirebilirsiniz
+            if (pass === 'mozaik123') {
+                document.getElementById('login-box').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+                loadRequests();
+            } else {
+                alert('Hatalı şifre!');
+            }
+        }
+
+        function loadRequests() {
+            const listDiv = document.getElementById('requests-list');
+            const pendingSlots = JSON.parse(localStorage.getItem('pendingSlots') || '[]');
+            
+            if (pendingSlots.length === 0) {
+                listDiv.innerHTML = '<p>Onay bekleyen talep bulunmuyor.</p>';
+                return;
+            }
+
+            listDiv.innerHTML = '';
+            pendingSlots.forEach((slot, index) => {
+                listDiv.innerHTML += `
+                    <div class="slot-card">
+                        <div>
+                            <strong>Slot ID:</strong> ${slot.id}<br>
+                            <strong>Kullanıcı/Kanal:</strong> ${slot.title}<br>
+                            <strong>Link:</strong> <a href="${slot.link}" target="_blank" style="color: #60a5fa;">${slot.link}</a>
+                        </div>
+                        <div>
+                            <button onclick="approveSlot(${index})">Onayla</button>
+                            <button class="reject" onclick="rejectSlot(${index})">Reddet</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function approveSlot(index) {
+            let pendingSlots = JSON.parse(localStorage.getItem('pendingSlots') || '[]');
+            let approvedSlots = JSON.parse(localStorage.getItem('approvedSlots') || '{}');
+            
+            const slot = pendingSlots[index];
+            approvedSlots[slot.id] = slot; // Onaylananlara ekle
+            
+            localStorage.setItem('approvedSlots', JSON.stringify(approvedSlots));
+            
+            pendingSlots.splice(index, 1); // Bekleyenlerden çıkar
+            localStorage.setItem('pendingSlots', JSON.stringify(pendingSlots));
+            
+            loadRequests();
+            alert('Slot başarıyla onaylandı ve duvara yansıtıldı!');
+        }
+
+        function rejectSlot(index) {
+            let pendingSlots = JSON.parse(localStorage.getItem('pendingSlots') || '[]');
+            pendingSlots.splice(index, 1);
+            localStorage.setItem('pendingSlots', JSON.stringify(pendingSlots));
+            loadRequests();
+            alert('Talep reddedildi.');
+        }
+    </script>
+</body>
+</html>
