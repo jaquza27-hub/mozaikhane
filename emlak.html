@@ -74,8 +74,6 @@
         .slot:hover::after { content: attr(data-tooltip); position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%); background: #0369a1; color: #fff; padding: 4px 8px; border-radius: 5px; font-size: 0.65rem; white-space: nowrap; pointer-events: none; box-shadow: 0 4px 8px rgba(0,0,0,0.4); z-index: 20; }
         .mosaic-footer { display: flex; justify-content: space-between; width: 100%; padding: 4px 0 2px 0; font-size: 0.6rem; color: #9ca3af; flex-shrink: 0; }
         .mosaic-footer span { color: #38bdf8; font-weight: bold; }
-        .admin-reset-btn { cursor: pointer; margin-left: 15px; color: #ef4444; border: 1px solid #ef4444; padding: 2px 6px; border-radius: 4px; transition: 0.2s; }
-        .admin-reset-btn:hover { background: #ef4444; color: #fff; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100; }
         .modal-box { background: #111827; border: 1px solid #1f2937; border-top: 4px solid #38bdf8; border-radius: 8px; width: 400px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
         .modal-close { position: absolute; top: 10px; right: 15px; font-size: 1.2rem; color: #9ca3af; cursor: pointer; }
@@ -132,7 +130,7 @@
             <div class="mosaic-grid" id="emlakDuvari"></div>
         </div>
         <div class="mosaic-footer">
-            <p><span id="footerText">Boş kutuya tıklayarak alan kiralayabilirsin.</span> <span class="admin-reset-btn" id="adminResetBtn">🗑️ Sıfırla</span></p>
+            <p><span id="footerText">Boş kutuya tıklayarak alan kiralayabilirsin.</span></p>
             <p><span id="occupancyText">Doluluk:</span> <span id="dolulukOrani">%0</span></p>
         </div>
     </div>
@@ -203,13 +201,34 @@
 
         let savedGrid = {};
         try {
-            savedGrid = JSON.parse(localStorage.getItem(storageKey));
+            savedGrid = JSON.parse(localStorage.getItem(storageKey)) || {};
         } catch (e) {
-            savedGrid = null;
+            savedGrid = {};
         }
 
-        if (!savedGrid) {
-            savedGrid = { 12: { size: 1, name: "VİZYON PROJE", url: "https://", platform: "web", logoMode: "platform", customLogo: "" } };
+        // 30 Gün (1 Ay) Süre Kontrolü ve Süresi Dolanların Otomatik Silinmesi
+        const now = new Date().getTime();
+        let dataUpdated = false;
+        for (let key in savedGrid) {
+            if (savedGrid[key]) {
+                if (!savedGrid[key].expireTime) {
+                    savedGrid[key].expireTime = now + (30 * 24 * 60 * 60 * 1000);
+                    dataUpdated = true;
+                }
+                if (now > savedGrid[key].expireTime) {
+                    delete savedGrid[key];
+                    dataUpdated = true;
+                }
+            }
+        }
+        if (dataUpdated) {
+            localStorage.setItem(storageKey, JSON.stringify(savedGrid));
+        }
+
+        if (Object.keys(savedGrid).length === 0) {
+            savedGrid = { 
+                12: { size: 1, name: "VİZYON PROJE", url: "https://", platform: "web", logoMode: "platform", customLogo: "", expireTime: now + (30 * 24 * 60 * 60 * 1000) } 
+            };
             localStorage.setItem(storageKey, JSON.stringify(savedGrid));
         }
 
@@ -256,7 +275,6 @@
                 let badge = platformIcons[platformKey] || platformIcons['web'];
                 let logo = data.logoMode === 'custom' && data.customLogo ? `<img src="${data.customLogo}" alt="Logo">` : badge;
 
-                // XSS koruması uygulanmış güvenli isim
                 let safeName = escapeHtml(data.name || "MOZAIKHANE");
                 let textLength = safeName.length;
                 let scrollDuration = Math.max(5, textLength * 0.7);
@@ -279,7 +297,6 @@
 
                 slot.innerHTML = `<div class="platform-badge">${badge}</div><div class="banner-content"><div class="marquee-wrapper"><span class="marquee-text" style="animation-duration: ${scrollDuration}s;">${safeName}</span></div><div class="banner-logo">${logo}</div></div>`;
                 
-                // Güvenli URL açılış kontrolü (Open Redirect / Phishing önlemi)
                 slot.onclick = () => {
                     let targetUrl = data.url;
                     if (targetUrl) {
@@ -315,15 +332,6 @@
             duvar.appendChild(slot);
         }
 
-        document.getElementById('adminResetBtn').onclick = function() {
-            const lang = localStorage.getItem('mozaikhane_lang') || 'tr';
-            const msg = lang === 'tr' ? "Emlak & Yatırım duvarı sıfırlansın mı?" : "Reset real estate & investment wall?";
-            if (confirm(msg)) {
-                localStorage.removeItem(storageKey);
-                location.reload();
-            }
-        };
-
         function openModal(boxNumber) {
             currentSelectedNumber = boxNumber;
             const lang = localStorage.getItem('mozaikhane_lang') || 'tr';
@@ -346,7 +354,6 @@
                 return; 
             }
 
-            // Girdileri temizleyip alıyoruz (XSS koruması)
             const rawName = document.getElementById('channelInput').value.trim();
             const name = escapeHtml(rawName ? rawName.toUpperCase() : "PROJE");
             const url = document.getElementById('urlInput').value.trim() || "https://";
@@ -357,7 +364,6 @@
                 const fileInput = document.getElementById('customLogoFile');
                 if (fileInput.files && fileInput.files[0]) {
                     const file = fileInput.files[0];
-                    // Dosya boyutu sınırı (Max 500 KB - localStorage şişmesini önler)
                     if (file.size > 500 * 1024) {
                         alert(lang === 'tr' ? "HATA: Logo dosyası çok büyük (Max 500 KB olmalı)!" : "ERROR: Logo file is too large (Max 500 KB)!");
                         return;
@@ -372,7 +378,8 @@
         }
 
         function saveToMemory(id, size, name, url, platform, logoMode, customLogo) {
-            savedGrid[id] = { size, name, url, platform, logoMode, customLogo };
+            const expireTime = new Date().getTime() + (30 * 24 * 60 * 60 * 1000);
+            savedGrid[id] = { size, name, url, platform, logoMode, customLogo, expireTime };
             localStorage.setItem(storageKey, JSON.stringify(savedGrid));
             location.reload();
         }
