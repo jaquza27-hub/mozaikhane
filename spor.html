@@ -199,142 +199,126 @@
         const sizeSelect = document.getElementById('sizeSelect');
         const toplamKutu = 500; 
         let currentSelectedNumber = 0;
-        const storageKey = 'mozaikhane_oyun_verisi';
+
+        // Ortak Backend Sunucu Linkimiz
+        const API_URL = 'https://mozaikhane-backend.onrender.com/api/grid';
 
         let savedGrid = {};
-        try {
-            savedGrid = JSON.parse(localStorage.getItem(storageKey)) || {};
-        } catch (e) {
-            savedGrid = {};
-        }
 
-        // 30 Gün (1 Ay) Süre Kontrolü ve Süresi Dolanların Otomatik Silinmesi
-        const now = new Date().getTime();
-        let dataUpdated = false;
-        for (let key in savedGrid) {
-            if (savedGrid[key]) {
-                // Eğer expireTime tanımlanmamışsa (eski kayıtlar için) 30 gün verelim
-                if (!savedGrid[key].expireTime) {
-                    savedGrid[key].expireTime = now + (30 * 24 * 60 * 60 * 1000);
-                    dataUpdated = true;
-                }
-                // Süresi dolmuşsa slottan sil
-                if (now > savedGrid[key].expireTime) {
-                    delete savedGrid[key];
-                    dataUpdated = true;
-                }
-            }
-        }
-        if (dataUpdated) {
-            localStorage.setItem(storageKey, JSON.stringify(savedGrid));
-        }
-
-        if (Object.keys(savedGrid).length === 0) {
-            // Örnek başlangıç verisi (30 günlük süreyle)
-            savedGrid = { 
-                12: { size: 1, name: "CAMP ESPOR", url: "https://twitch.tv", platform: "twitch", logoMode: "platform", customLogo: "", expireTime: now + (30 * 24 * 60 * 60 * 1000) } 
-            };
-            localStorage.setItem(storageKey, JSON.stringify(savedGrid));
-        }
-
-        for (let key in savedGrid) {
-            if (savedGrid[key]) {
-                let rawSize = parseInt(savedGrid[key].size);
-                if (rawSize === 9 || rawSize === 3) savedGrid[key].size = 9;
-                else if (rawSize === 4 || rawSize === 2) savedGrid[key].size = 4;
-                else savedGrid[key].size = 1;
+        // Sunucudan güncel grid verisini asenkron olarak çek
+        async function fetchGridData() {
+            try {
+                const response = await fetch(API_URL);
+                savedGrid = await response.json();
+                buildGrid();
+            } catch (e) {
+                console.error("Sunucuya bağlanılamadı:", e);
+                savedGrid = {};
+                buildGrid();
             }
         }
 
-        let hiddenCells = [];
-        for (let key in savedGrid) {
-            let num = parseInt(key);
-            let size = savedGrid[key].size;
-            let spanLength = size === 9 ? 3 : (size === 4 ? 2 : 1);
-            for(let r = 0; r < spanLength; r++) {
-                for(let c = 0; c < spanLength; c++) {
-                    if (r === 0 && c === 0) continue; 
-                    hiddenCells.push(num + c + (r * 25));
+        function buildGrid() {
+            duvar.innerHTML = "";
+
+            for (let key in savedGrid) {
+                if (savedGrid[key]) {
+                    let rawSize = parseInt(savedGrid[key].size);
+                    if (rawSize === 9 || rawSize === 3) savedGrid[key].size = 9;
+                    else if (rawSize === 4 || rawSize === 2) savedGrid[key].size = 4;
+                    else savedGrid[key].size = 1;
                 }
             }
-        }
 
-        let occupiedCount = Object.keys(savedGrid).length + hiddenCells.length;
-        let percent = ((occupiedCount / toplamKutu) * 100).toFixed(1);
-        document.getElementById('dolulukOrani').innerText = `%${percent}`;
-
-        for (let i = 1; i <= toplamKutu; i++) {
-            const slot = document.createElement('div');
-            slot.classList.add('slot');
-            slot.id = `slot-${i}`; 
-            
-            if (hiddenCells.includes(i)) { 
-                slot.style.display = 'none'; 
-                duvar.appendChild(slot); 
-                continue; 
+            let hiddenCells = [];
+            for (let key in savedGrid) {
+                let num = parseInt(key);
+                let size = savedGrid[key].size;
+                let spanLength = size === 9 ? 3 : (size === 4 ? 2 : 1);
+                for(let r = 0; r < spanLength; r++) {
+                    for(let c = 0; c < spanLength; c++) {
+                        if (r === 0 && c === 0) continue; 
+                        hiddenCells.push(num + c + (r * 25));
+                    }
+                }
             }
 
-            if (savedGrid[i]) {
-                let data = savedGrid[i];
-                let platformKey = (data.platform || 'web').toLowerCase();
-                let badge = platformIcons[platformKey] || platformIcons['web'];
-                let logo = data.logoMode === 'custom' && data.customLogo ? `<img src="${data.customLogo}" alt="Logo">` : badge;
+            let occupiedCount = Object.keys(savedGrid).length + hiddenCells.length;
+            let percent = ((occupiedCount / toplamKutu) * 100).toFixed(1);
+            document.getElementById('dolulukOrani').innerText = `%${percent}`;
 
-                let safeName = escapeHtml(data.name || "MOZAIKHANE");
-                let textLength = safeName.length;
-                let scrollDuration = Math.max(5, textLength * 0.7);
-                let actualSize = parseInt(data.size) || 1;
-
-                if (actualSize === 9) { 
-                    slot.classList.add('mega-banner'); 
-                    slot.style.gridColumn = "span 3";
-                    slot.style.gridRow = "span 3";
-                    slot.setAttribute('data-tooltip', `${safeName} - 3x3`); 
-                } else if (actualSize === 4) { 
-                    slot.classList.add('large-banner'); 
-                    slot.style.gridColumn = "span 2";
-                    slot.style.gridRow = "span 2";
-                    slot.setAttribute('data-tooltip', `${safeName} - 2x2`); 
-                } else { 
-                    slot.classList.add('filled'); 
-                    slot.setAttribute('data-tooltip', `${safeName} - 1x1`); 
-                }
-
-                slot.innerHTML = `<div class="platform-badge">${badge}</div><div class="banner-content"><div class="marquee-wrapper"><span class="marquee-text" style="animation-duration: ${scrollDuration}s;">${safeName}</span></div><div class="banner-logo">${logo}</div></div>`;
+            for (let i = 1; i <= toplamKutu; i++) {
+                const slot = document.createElement('div');
+                slot.classList.add('slot');
+                slot.id = `slot-${i}`; 
                 
-                slot.onclick = () => {
-                    let targetUrl = data.url;
-                    if (targetUrl) {
-                        if (targetUrl.startsWith('javascript:') || targetUrl.startsWith('data:')) {
-                            alert('Geçersiz veya güvensiz bağlantı!');
-                            return;
-                        }
-                        if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
-                            targetUrl = 'https://' + targetUrl;
-                        }
-                        window.open(targetUrl, '_blank');
-                    } else {
-                        alert(`${safeName} kanalına yönlendiriliyor!`);
-                    }
-                };
+                if (hiddenCells.includes(i)) { 
+                    slot.style.display = 'none'; 
+                    duvar.appendChild(slot); 
+                    continue; 
+                }
 
-                slot.oncontextmenu = function(e) {
-                    e.preventDefault();
-                    const lang = localStorage.getItem('mozaikhane_lang') || 'tr';
-                    const msg = lang === 'tr' ? `Kutu #${i} üzerindeki "${safeName}" silinsin mi?` : `Delete "${safeName}" on Slot #${i}?`;
-                    if (confirm(msg)) {
-                        delete savedGrid[i];
-                        localStorage.setItem(storageKey, JSON.stringify(savedGrid));
-                        location.reload();
+                if (savedGrid[i]) {
+                    let data = savedGrid[i];
+                    let platformKey = (data.platform || 'web').toLowerCase();
+                    let badge = platformIcons[platformKey] || platformIcons['web'];
+                    let logo = data.logoMode === 'custom' && data.customLogo ? `<img src="${data.customLogo}" alt="Logo">` : badge;
+
+                    let safeName = escapeHtml(data.name || "MOZAIKHANE");
+                    let textLength = safeName.length;
+                    let scrollDuration = Math.max(5, textLength * 0.7);
+                    let actualSize = parseInt(data.size) || 1;
+
+                    if (actualSize === 9) { 
+                        slot.classList.add('mega-banner'); 
+                        slot.style.gridColumn = "span 3";
+                        slot.style.gridRow = "span 3";
+                        slot.setAttribute('data-tooltip', `${safeName} - 3x3`); 
+                    } else if (actualSize === 4) { 
+                        slot.classList.add('large-banner'); 
+                        slot.style.gridColumn = "span 2";
+                        slot.style.gridRow = "span 2";
+                        slot.setAttribute('data-tooltip', `${safeName} - 2x2`); 
+                    } else { 
+                        slot.classList.add('filled'); 
+                        slot.setAttribute('data-tooltip', `${safeName} - 1x1`); 
                     }
-                };
-            } else {
-                slot.innerText = `#${i}`;
-                const lang = localStorage.getItem('mozaikhane_lang') || 'tr';
-                slot.setAttribute('data-tooltip', lang === 'tr' ? `Kutu #${i} - Boş` : `Slot #${i} - Empty`);
-                slot.onclick = function() { openModal(i); };
+
+                    slot.innerHTML = `<div class="platform-badge">${badge}</div><div class="banner-content"><div class="marquee-wrapper"><span class="marquee-text" style="animation-duration: ${scrollDuration}s;">${safeName}</span></div><div class="banner-logo">${logo}</div></div>`;
+                    
+                    slot.onclick = () => {
+                        let targetUrl = data.url;
+                        if (targetUrl) {
+                            if (targetUrl.startsWith('javascript:') || targetUrl.startsWith('data:')) {
+                                alert('Geçersiz veya güvensiz bağlantı!');
+                                return;
+                            }
+                            if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+                                targetUrl = 'https://' + targetUrl;
+                            }
+                            window.open(targetUrl, '_blank');
+                        } else {
+                            alert(`${safeName} kanalına yönlendiriliyor!`);
+                        }
+                    };
+
+                    slot.oncontextmenu = async function(e) {
+                        e.preventDefault();
+                        const lang = localStorage.getItem('mozaikhane_lang') || 'tr';
+                        const msg = lang === 'tr' ? `Kutu #${i} üzerindeki "${safeName}" silinsin mi?` : `Delete "${safeName}" on Slot #${i}?`;
+                        if (confirm(msg)) {
+                            await fetch(`${API_URL}/${i}`, { method: 'DELETE' });
+                            fetchGridData();
+                        }
+                    };
+                } else {
+                    slot.innerText = `#${i}`;
+                    const lang = localStorage.getItem('mozaikhane_lang') || 'tr';
+                    slot.setAttribute('data-tooltip', lang === 'tr' ? `Kutu #${i} - Boş` : `Slot #${i} - Empty`);
+                    slot.onclick = function() { openModal(i); };
+                }
+                duvar.appendChild(slot);
             }
-            duvar.appendChild(slot);
         }
 
         function openModal(boxNumber) {
@@ -374,20 +358,29 @@
                         return;
                     }
                     const reader = new FileReader();
-                    reader.onload = e => saveToMemory(currentSelectedNumber, size, name, url, platform, logoMode, e.target.result);
+                    reader.onload = e => saveToServer(currentSelectedNumber, size, name, url, platform, logoMode, e.target.result);
                     reader.readAsDataURL(file);
                     return;
                 }
             }
-            saveToMemory(currentSelectedNumber, size, name, url, platform, logoMode, "");
+            saveToServer(currentSelectedNumber, size, name, url, platform, logoMode, "");
         }
 
-        function saveToMemory(id, size, name, url, platform, logoMode, customLogo) {
-            // 30 Günlük bitiş zamanı (expireTime) mîlisan cinsinden hesaplanıp kaydediliyor
+        async function saveToServer(id, size, name, url, platform, logoMode, customLogo) {
             const expireTime = new Date().getTime() + (30 * 24 * 60 * 60 * 1000);
-            savedGrid[id] = { size, name, url, platform, logoMode, customLogo, expireTime };
-            localStorage.setItem(storageKey, JSON.stringify(savedGrid));
-            location.reload();
+            const payload = { size, name, url, platform, logoMode, customLogo, expireTime };
+
+            try {
+                await fetch(`${API_URL}/${id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                closeModal();
+                fetchGridData();
+            } catch (e) {
+                alert("Kayıt sırasında bir hata oluştu!");
+            }
         }
 
         const translations = {
@@ -445,6 +438,9 @@
         const savedLang = localStorage.getItem('mozaikhane_lang') || 'tr';
         document.getElementById('langSelect').value = savedLang;
         changeLanguage(savedLang);
+
+        // Sayfa açıldığında sunucudan verileri çek
+        fetchGridData();
     </script>
 </body>
 </html>
