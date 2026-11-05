@@ -25,9 +25,6 @@
         .logo-texts .brand-name span { color: #38bdf8; }
         .logo-texts span.tagline { font-size: 0.4rem; color: #9ca3af; font-weight: 600; letter-spacing: 0.8px; font-family: 'Segoe UI', sans-serif; }
 
-        .back-btn { background: #1f2937; color: #38bdf8; border: 1px solid #334155; padding: 3px 8px; font-size: 0.65rem; font-weight: bold; border-radius: 5px; cursor: pointer; text-decoration: none; transition: all 0.2s; }
-        .back-btn:hover { background: #38bdf8; color: #0b0f19; }
-        
         .header-center { display: flex; align-items: center; gap: 12px; }
         .header-title h2 { font-size: 0.9rem; color: #38bdf8; letter-spacing: 1px; font-family: 'Orbitron', sans-serif; }
         .header-title p { font-size: 0.5rem; color: #9ca3af; text-align: left; }
@@ -101,7 +98,6 @@
 <body>
     <header>
         <div class="header-center">
-            <a href="index.html" class="back-btn" id="backBtn">← Ana Sayfa</a>
             <a href="index.html" class="logo-area">
                 <div class="logo-box">
                     <div class="logo-grid">
@@ -313,16 +309,7 @@
                     }
                 };
 
-                slot.oncontextmenu = function(e) {
-                    e.preventDefault();
-                    const lang = localStorage.getItem('mozaikhane_lang') || 'tr';
-                    const msg = lang === 'tr' ? `Kutu #${i} üzerindeki "${safeName}" silinsin mi?` : `Delete "${safeName}" on Slot #${i}?`;
-                    if (confirm(msg)) {
-                        delete savedGrid[i];
-                        localStorage.setItem(storageKey, JSON.stringify(savedGrid));
-                        location.reload();
-                    }
-                };
+                // Sağ tık silme özelliği tamamen kaldırıldı.
             } else {
                 slot.innerText = `#${i}`;
                 const lang = localStorage.getItem('mozaikhane_lang') || 'tr';
@@ -386,7 +373,6 @@
 
         const translations = {
             tr: { 
-                back: "← Ana Sayfa", 
                 sub: "Sağlık & Yaşam Mozaik Duvarı", 
                 price: "Birim Fiyat:", 
                 footer: "Boş kutuya tıklayarak alan kiralayabilirsin.", 
@@ -401,7 +387,6 @@
                 btn: "Ödeme Yap (Shopier)" 
             },
             en: { 
-                back: "← Home", 
                 sub: "Health & Wellness Mosaic Wall", 
                 price: "Unit Price:", 
                 footer: "Click an empty slot to claim your spot.", 
@@ -421,7 +406,6 @@
             localStorage.setItem('mozaikhane_lang', lang);
             const t = translations[lang];
             if (!t) return;
-            document.getElementById('backBtn').innerText = t.back;
             document.getElementById('pageSubTitle').innerText = t.sub;
             document.getElementById('priceLabel').innerText = t.price;
             document.getElementById('footerText').innerText = t.footer;
