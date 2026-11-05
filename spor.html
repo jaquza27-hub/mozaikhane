@@ -302,15 +302,7 @@
                         }
                     };
 
-                    slot.oncontextmenu = async function(e) {
-                        e.preventDefault();
-                        const lang = localStorage.getItem('mozaikhane_lang') || 'tr';
-                        const msg = lang === 'tr' ? `Kutu #${i} üzerindeki "${safeName}" silinsin mi?` : `Delete "${safeName}" on Slot #${i}?`;
-                        if (confirm(msg)) {
-                            await fetch(`${API_URL}/${i}`, { method: 'DELETE' });
-                            fetchGridData();
-                        }
-                    };
+                    // Güvenlik Açığı Kapatıldı: Sağ tık silme özelliği normal kullanıcılardan tamamen kaldırıldı.
                 } else {
                     slot.innerText = `#${i}`;
                     const lang = localStorage.getItem('mozaikhane_lang') || 'tr';
