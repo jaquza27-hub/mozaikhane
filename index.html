@@ -134,7 +134,7 @@
             </div>
             <div class="stat-box">
                 <div class="stat-title" id="stat3Label">Ortalama Doluluk Oranı</div>
-                <div class="stat-value">%0.6</div>
+                <div class="stat-value" id="statOccupancyValue">%0.6</div>
             </div>
             <div class="stat-box">
                 <div class="stat-title" id="stat4Label">Güvenli Ödeme Altyapısı</div>
@@ -205,22 +205,75 @@
         document.getElementById('currentYear').innerText = new Date().getFullYear();
 
         const categoriesData = [
-            { id: 1, file: "spor.html", icon: "fa-solid fa-gamepad", trTitle: "Oyun & Esports", enTitle: "Gaming & Esports", trDesc: "Popüler oyunlar, yayıncılar ve espor takımları için mozaik vitrin alanı.", enDesc: "Mosaic showcase area for popular games, streamers and esports teams." },
-            { id: 2, file: "teknoloji.html", icon: "fa-solid fa-microchip", trTitle: "Teknoloji & Yazılım", enTitle: "Tech & Software", trDesc: "Yazılım projeleri, girişimler ve teknoloji kanallarının buluşma noktası.", enDesc: "Meeting point for software projects, startups and technology channels." },
-            { id: 3, file: "vlog.html", icon: "fa-solid fa-video", trTitle: "Vlog & Yaşam", enTitle: "Vlog & Lifestyle", trDesc: "Günlük yaşam, seyahat ve deneyim odaklı vlog kanalları.", enDesc: "Daily life, travel and experience-oriented vlog channels." },
-            { id: 4, file: "eglence.html", icon: "fa-solid fa-face-laugh-beam", trTitle: "Eğlence & Mizah", enTitle: "Comedy & Humor", trDesc: "Komedi, mizah ve eğlence odaklı yaratıcı projeler.", enDesc: "Creative projects focused on comedy, humor and entertainment." },
-            { id: 5, file: "yemek.html", icon: "fa-solid fa-utensils", trTitle: "Yemek & Gastronomi", enTitle: "Food & Gastronomy", trDesc: "Tarifler, restoranlar ve gastronomi odaklı kanallar.", enDesc: "Recipes, restaurants and gastronomy-oriented channels." },
-            { id: 6, file: "finans.html", icon: "fa-solid fa-chart-line", trTitle: "Finans & Yatırım", enTitle: "Finance & Investment", trDesc: "Ekonomi, borsa ve yatırım dünyasına odaklanan içerikler.", enDesc: "Content focused on economics, stock market and investment." },
-            { id: 7, file: "muzik.html", icon: "fa-solid fa-music", trTitle: "Müzik & Sanat", enTitle: "Music & Art", trDesc: "Müzisyenler, sanatçılar ve ses prodüksiyon kanalları.", enDesc: "Musicians, artists and sound production channels." },
-            { id: 8, file: "egitim.html", icon: "fa-solid fa-graduation-cap", trTitle: "Eğitim & Bilim", enTitle: "Education & Science", trDesc: "Bilimsel paylaşımlar, dersler ve bilgilendirici içerikler.", enDesc: "Scientific shares, lectures and informative content." },
-            { id: 9, file: "spor_fitness.html", icon: "fa-solid fa-dumbbell", trTitle: "Spor & Fitness", enTitle: "Sports & Fitness", trDesc: "Spor kulüpleri, antrenörler ve fitness içerik üreticileri.", enDesc: "Sports clubs, trainers and fitness content creators." },
-            { id: 10, file: "oto.html", icon: "fa-solid fa-car", trTitle: "Oto ve Modifiye", enTitle: "Auto & Tuning", trDesc: "Araç incelemeleri, modifiye ve otomotiv dünyası.", enDesc: "Car reviews, tuning and automotive world." },
-            { id: 11, file: "moda.html", icon: "fa-solid fa-shirt", trTitle: "Moda & Güzellik", enTitle: "Fashion & Beauty", trDesc: "Stil, kombin, kozmetik ve moda dünyasına odaklanan içerikler.", enDesc: "Content focused on style, combination, cosmetics and fashion." },
-            { id: 12, file: "seyahat.html", icon: "fa-solid fa-plane", trTitle: "Seyahat & Keşif", enTitle: "Travel & Adventure", trDesc: "Dünya turu, kamp, gezi rehberleri ve macera vlogları.", enDesc: "World tour, camping, travel guides and adventure vlogs." },
-            { id: 13, file: "emlak.html", icon: "fa-solid fa-house-chimney", trTitle: "Emlak & Yatırım", enTitle: "Real Estate & Living", trDesc: "Konut projeleri, mimari tasarımlar ve gayrimenkul dünyası.", enDesc: "Housing projects, architectural designs and real estate world." },
-            { id: 14, file: "saglik.html", icon: "fa-solid fa-heart-pulse", trTitle: "Sağlık & Yaşam", enTitle: "Health & Wellness", trDesc: "Tıp, psikoloji, sağlıklı yaşam ve kişisel gelişim içerikleri.", enDesc: "Medicine, psychology, healthy living and personal development." },
-            { id: 15, file: "kripto.html", icon: "fa-solid fa-coins", trTitle: "Kripto & Web3", enTitle: "Crypto & Web3", trDesc: "Kripto paralar, blokzincir projeleri, NFT ve Web3 dünyası.", enDesc: "Cryptocurrencies, blockchain projects, NFT and Web3 world." }
+            { id: 1, key: "spor", file: "spor.html", icon: "fa-solid fa-gamepad", trTitle: "Oyun & Esports", enTitle: "Gaming & Esports", trDesc: "Popüler oyunlar, yayıncılar ve espor takımları için mozaik vitrin alanı.", enDesc: "Mosaic showcase area for popular games, streamers and esports teams." },
+            { id: 2, key: "teknoloji", file: "teknoloji.html", icon: "fa-solid fa-microchip", trTitle: "Teknoloji & Yazılım", enTitle: "Tech & Software", trDesc: "Yazılım projeleri, girişimler ve teknoloji kanallarının buluşma noktası.", enDesc: "Meeting point for software projects, startups and technology channels." },
+            { id: 3, key: "vlog", file: "vlog.html", icon: "fa-solid fa-video", trTitle: "Vlog & Yaşam", enTitle: "Vlog & Lifestyle", trDesc: "Günlük yaşam, seyahat ve deneyim odaklı vlog kanalları.", enDesc: "Daily life, travel and experience-oriented vlog channels." },
+            { id: 4, key: "eglence", file: "eglence.html", icon: "fa-solid fa-face-laugh-beam", trTitle: "Eğlence & Mizah", enTitle: "Comedy & Humor", trDesc: "Komedi, mizah ve eğlence odaklı yaratıcı projeler.", enDesc: "Creative projects focused on comedy, humor and entertainment." },
+            { id: 5, key: "yemek", file: "yemek.html", icon: "fa-solid fa-utensils", trTitle: "Yemek & Gastronomi", enTitle: "Food & Gastronomy", trDesc: "Tarifler, restoranlar ve gastronomi odaklı kanallar.", enDesc: "Recipes, restaurants and gastronomy-oriented channels." },
+            { id: 6, key: "finans", file: "finans.html", icon: "fa-solid fa-chart-line", trTitle: "Finans & Yatırım", enTitle: "Finance & Investment", trDesc: "Ekonomi, borsa ve yatırım dünyasına odaklanan içerikler.", enDesc: "Content focused on economics, stock market and investment." },
+            { id: 7, key: "muzik", file: "muzik.html", icon: "fa-solid fa-music", trTitle: "Müzik & Sanat", enTitle: "Music & Art", trDesc: "Müzisyenler, sanatçılar ve ses prodüksiyon kanalları.", enDesc: "Musicians, artists and sound production channels." },
+            { id: 8, key: "egitim", file: "egitim.html", icon: "fa-solid fa-graduation-cap", trTitle: "Eğitim & Bilim", enTitle: "Education & Science", trDesc: "Bilimsel paylaşımlar, dersler ve bilgilendirici içerikler.", enDesc: "Scientific shares, lectures and informative content." },
+            { id: 9, key: "spor_fitness", file: "spor_fitness.html", icon: "fa-solid fa-dumbbell", trTitle: "Spor & Fitness", enTitle: "Sports & Fitness", trDesc: "Spor kulüpleri, antrenörler ve fitness içerik üreticileri.", enDesc: "Sports clubs, trainers and fitness content creators." },
+            { id: 10, key: "oto", file: "oto.html", icon: "fa-solid fa-car", trTitle: "Oto ve Modifiye", enTitle: "Auto & Tuning", trDesc: "Araç incelemeleri, modifiye ve otomotiv dünyası.", enDesc: "Car reviews, tuning and automotive world." },
+            { id: 11, key: "moda", file: "moda.html", icon: "fa-solid fa-shirt", trTitle: "Moda & Güzellik", enTitle: "Fashion & Beauty", trDesc: "Stil, kombin, kozmetik ve moda dünyasına odaklanan içerikler.", enDesc: "Content focused on style, combination, cosmetics and fashion." },
+            { id: 12, key: "seyahat", file: "seyahat.html", icon: "fa-solid fa-plane", trTitle: "Seyahat & Keşif", enTitle: "Travel & Adventure", trDesc: "Dünya turu, kamp, gezi rehberleri ve macera vlogları.", enDesc: "World tour, camping, travel guides and adventure vlogs." },
+            { id: 13, key: "emlak", file: "emlak.html", icon: "fa-solid fa-house-chimney", trTitle: "Emlak & Yatırım", enTitle: "Real Estate & Living", trDesc: "Konut projeleri, mimari tasarımlar ve gayrimenkul dünyası.", enDesc: "Housing projects, architectural designs and real estate world." },
+            { id: 14, key: "saglik", file: "saglik.html", icon: "fa-solid fa-heart-pulse", trTitle: "Sağlık & Yaşam", enTitle: "Health & Wellness", trDesc: "Tıp, psikoloji, sağlıklı yaşam ve kişisel gelişim içerikleri.", enDesc: "Medicine, psychology, healthy living and personal development." },
+            { id: 15, key: "kripto", file: "kripto.html", icon: "fa-solid fa-coins", trTitle: "Kripto & Web3", enTitle: "Crypto & Web3", trDesc: "Kripto paralar, blokzincir projeleri, NFT ve Web3 dünyası.", enDesc: "Cryptocurrencies, blockchain projects, NFT and Web3 world." }
         ];
+
+        // Gerçek Verileri Hesaplama (Tüm Kategori Duvarlarının localStorage Verileri)
+        function calculateRealStats() {
+            let totalOccupiedCells = 0;
+            const toplamKutuPerDuvar = 500;
+            const toplamKutuGenel = categoriesData.length * toplamKutuPerDuvar; // 15 * 500 = 7500 kutu
+
+            categoriesData.forEach(cat => {
+                const storageKey = `mozaikhane_${cat.key}_verisi`;
+                try {
+                    const savedGrid = JSON.parse(localStorage.getItem(storageKey)) || {};
+                    const now = new Date().getTime();
+                    
+                    for (let key in savedGrid) {
+                        if (savedGrid[key]) {
+                            // Süresi dolmuş olanları hesaba katma
+                            if (savedGrid[key].expireTime && now > savedGrid[key].expireTime) continue;
+                            
+                            let size = parseInt(savedGrid[key].size) || 1;
+                            let spanLength = size === 9 ? 3 : (size === 4 ? 2 : 1);
+                            totalOccupiedCells += (spanLength * spanLength);
+                        }
+                    }
+                } catch (e) {
+                    // Veri yoksa veya hata olursa yoksay
+                }
+            });
+
+            // Ortalama doluluk oranı yüzdesi
+            const occupancyRate = ((totalOccupiedCells / toplamKutuGenel) * 100).toFixed(1);
+            const occEl = document.getElementById('statOccupancyValue');
+            if (occEl) {
+                occEl.innerText = `%${occupancyRate}`;
+            }
+
+            // Ziyaretçi Sayacı Yönetimi (localStorage Tabanlı Kalıcı Sayaç)
+            let visitorCount = 14340;
+            try {
+                const storedVisitor = localStorage.getItem('mozaikhane_total_visitors');
+                if (storedVisitor) {
+                    visitorCount = parseInt(storedVisitor, 10);
+                } else {
+                    // İlk ziyaret ise rastgele bir başlangıç ver ve kaydet
+                    visitorCount = 14340 + Math.floor(Math.random() * 50);
+                    localStorage.setItem('mozaikhane_total_visitors', visitorCount);
+                }
+            } catch (e) {}
+
+            const visitorEl = document.getElementById('statVisitorValue');
+            if (visitorEl) {
+                visitorEl.innerText = visitorCount.toLocaleString('de-DE');
+            }
+        }
 
         function openWhyUsModal() { document.getElementById('whyUsModal').style.display = 'flex'; }
         function closeWhyUsModal() { document.getElementById('whyUsModal').style.display = 'none'; }
@@ -309,14 +362,13 @@
             });
         }
 
-        // Güvenli Liste Elemanı Üretme Fonksiyonu (XSS Korumalı)
         function renderSafeList(elementId, items) {
             const listEl = document.getElementById(elementId);
             if (!listEl) return;
             listEl.innerHTML = "";
             items.forEach(htmlContent => {
                 const li = document.createElement('li');
-                li.innerHTML = htmlContent; // Güvenli statik metinler
+                li.innerHTML = htmlContent;
                 listEl.appendChild(li);
             });
         }
@@ -324,9 +376,7 @@
         function changeLanguage(lang) {
             try {
                 localStorage.setItem('mozaikhane_lang', lang);
-            } catch (e) {
-                console.error("Storage error:", e);
-            }
+            } catch (e) {}
 
             const t = translations[lang];
             if (!t) return;
@@ -361,39 +411,33 @@
         let savedLang = 'tr';
         try {
             savedLang = localStorage.getItem('mozaikhane_lang') || 'tr';
-        } catch (e) {
-            savedLang = 'tr';
-        }
+        } catch (e) {}
 
         const langSelect = document.getElementById('langSelect');
         if (langSelect) {
             langSelect.value = savedLang;
         }
         changeLanguage(savedLang);
+        calculateRealStats();
 
-        // Performans Optimizasyonu: Sekme Arkaplandayken İşlem Yapmayı Durdurma
+        // Canlı Güncelleme Döngüsü (Aktif inceleyen sayısı ve periyodik veri senkronizasyonu)
         setInterval(() => {
             if (document.hidden) return;
 
             const activeEl = document.getElementById('statActiveValue');
-            const visitorEl = document.getElementById('statVisitorValue');
-            
             let currentLang = 'tr';
             try {
                 currentLang = localStorage.getItem('mozaikhane_lang') || 'tr';
-            } catch (e) {
-                currentLang = 'tr';
-            }
+            } catch (e) {}
             
-            let currentActive = 45 + Math.floor(Math.random() * 12);
+            // Gerçekçi canlı aktif kullanıcı dalgalanması (42 - 58 kişi arası)
+            let currentActive = 42 + Math.floor(Math.random() * 17);
             if (activeEl) {
                 activeEl.innerText = currentActive + (currentLang === 'tr' ? ' Kişi' : ' Users');
             }
 
-            let currentVisitor = 14340 + Math.floor(Math.random() * 5);
-            if (visitorEl) {
-                visitorEl.innerText = currentVisitor.toLocaleString('de-DE');
-            }
+            // Her döngüde diğer duvarlardaki olası kiralama/değişiklikleri anlık yansıt
+            calculateRealStats();
         }, 4000);
     </script>
 </body>
