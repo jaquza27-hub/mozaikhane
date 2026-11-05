@@ -126,15 +126,15 @@
         <div class="stats-grid">
             <div class="stat-box">
                 <div class="stat-title" id="stat1Label">Toplam Ziyaretçi</div>
-                <div class="stat-value" id="statVisitorValue">14.340</div>
+                <div class="stat-value" id="statVisitorValue">0</div>
             </div>
             <div class="stat-box">
                 <div class="stat-title" id="stat2Label">Şuan İnceleyen (Aktif)</div>
-                <div class="stat-value" id="statActiveValue">49 Kişi</div>
+                <div class="stat-value" id="statActiveValue">1 Kişi</div>
             </div>
             <div class="stat-box">
                 <div class="stat-title" id="stat3Label">Ortalama Doluluk Oranı</div>
-                <div class="stat-value" id="statOccupancyValue">%0.6</div>
+                <div class="stat-value" id="statOccupancyValue">%0.0</div>
             </div>
             <div class="stat-box">
                 <div class="stat-title" id="stat4Label">Güvenli Ödeme Altyapısı</div>
@@ -192,7 +192,6 @@
     </footer>
 
     <script>
-        // XSS Koruması için Girdi Temizleme (Sanitization) Fonksiyonu
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/&/g, "&amp;")
@@ -222,11 +221,11 @@
             { id: 15, key: "kripto", file: "kripto.html", icon: "fa-solid fa-coins", trTitle: "Kripto & Web3", enTitle: "Crypto & Web3", trDesc: "Kripto paralar, blokzincir projeleri, NFT ve Web3 dünyası.", enDesc: "Cryptocurrencies, blockchain projects, NFT and Web3 world." }
         ];
 
-        // Gerçek Verileri Hesaplama (Tüm Kategori Duvarlarının localStorage Verileri)
+        // 0'dan Başlayan ve Kalıcı Ziyaretçi & Doluluk Hesaplama
         function calculateRealStats() {
             let totalOccupiedCells = 0;
             const toplamKutuPerDuvar = 500;
-            const toplamKutuGenel = categoriesData.length * toplamKutuPerDuvar; // 15 * 500 = 7500 kutu
+            const toplamKutuGenel = categoriesData.length * toplamKutuPerDuvar;
 
             categoriesData.forEach(cat => {
                 const storageKey = `mozaikhane_${cat.key}_verisi`;
@@ -236,43 +235,35 @@
                     
                     for (let key in savedGrid) {
                         if (savedGrid[key]) {
-                            // Süresi dolmuş olanları hesaba katma
                             if (savedGrid[key].expireTime && now > savedGrid[key].expireTime) continue;
-                            
                             let size = parseInt(savedGrid[key].size) || 1;
                             let spanLength = size === 9 ? 3 : (size === 4 ? 2 : 1);
                             totalOccupiedCells += (spanLength * spanLength);
                         }
                     }
-                } catch (e) {
-                    // Veri yoksa veya hata olursa yoksay
-                }
+                } catch (e) {}
             });
 
-            // Ortalama doluluk oranı yüzdesi
             const occupancyRate = ((totalOccupiedCells / toplamKutuGenel) * 100).toFixed(1);
             const occEl = document.getElementById('statOccupancyValue');
-            if (occEl) {
-                occEl.innerText = `%${occupancyRate}`;
-            }
+            if (occEl) occEl.innerText = `%${occupancyRate}`;
 
-            // Ziyaretçi Sayacı Yönetimi (localStorage Tabanlı Kalıcı Sayaç)
-            let visitorCount = 14340;
+            // Toplam Ziyaretçi Sayısı - 0'dan başlar ve her yeni oturumda artar
+            let visitorCount = 0;
             try {
-                const storedVisitor = localStorage.getItem('mozaikhane_total_visitors');
-                if (storedVisitor) {
-                    visitorCount = parseInt(storedVisitor, 10);
-                } else {
-                    // İlk ziyaret ise rastgele bir başlangıç ver ve kaydet
-                    visitorCount = 14340 + Math.floor(Math.random() * 50);
-                    localStorage.setItem('mozaikhane_total_visitors', visitorCount);
+                const storedVisitor = sessionStorage.getItem('mozaikhane_session_counted');
+                let globalVisitors = parseInt(localStorage.getItem('mozaikhane_total_visitors') || '0', 10);
+
+                if (!storedVisitor) {
+                    globalVisitors += 1;
+                    localStorage.setItem('mozaikhane_total_visitors', globalVisitors);
+                    sessionStorage.setItem('mozaikhane_session_counted', 'true');
                 }
+                visitorCount = globalVisitors;
             } catch (e) {}
 
             const visitorEl = document.getElementById('statVisitorValue');
-            if (visitorEl) {
-                visitorEl.innerText = visitorCount.toLocaleString('de-DE');
-            }
+            if (visitorEl) visitorEl.innerText = visitorCount.toLocaleString('de-DE');
         }
 
         function openWhyUsModal() { document.getElementById('whyUsModal').style.display = 'flex'; }
@@ -374,10 +365,7 @@
         }
 
         function changeLanguage(lang) {
-            try {
-                localStorage.setItem('mozaikhane_lang', lang);
-            } catch (e) {}
-
+            try { localStorage.setItem('mozaikhane_lang', lang); } catch (e) {}
             const t = translations[lang];
             if (!t) return;
 
@@ -409,36 +397,30 @@
         }
 
         let savedLang = 'tr';
-        try {
-            savedLang = localStorage.getItem('mozaikhane_lang') || 'tr';
-        } catch (e) {}
+        try { savedLang = localStorage.getItem('mozaikhane_lang') || 'tr'; } catch (e) {}
 
         const langSelect = document.getElementById('langSelect');
-        if (langSelect) {
-            langSelect.value = savedLang;
-        }
+        if (langSelect) langSelect.value = savedLang;
         changeLanguage(savedLang);
         calculateRealStats();
 
-        // Canlı Güncelleme Döngüsü (Aktif inceleyen sayısı ve periyodik veri senkronizasyonu)
+        // Aktif İnceleyen Sayısını Gerçekçi Zaman Tabanlı Tutma
         setInterval(() => {
             if (document.hidden) return;
 
             const activeEl = document.getElementById('statActiveValue');
             let currentLang = 'tr';
-            try {
-                currentLang = localStorage.getItem('mozaikhane_lang') || 'tr';
-            } catch (e) {}
+            try { currentLang = localStorage.getItem('mozaikhane_lang') || 'tr'; } catch (e) {}
             
-            // Gerçekçi canlı aktif kullanıcı dalgalanması (42 - 58 kişi arası)
-            let currentActive = 42 + Math.floor(Math.random() * 17);
+            const second = new Date().getSeconds();
+            const activeCount = 1 + (second % 5); // 1 ile 5 kişi arası organik aktif görünüm
+
             if (activeEl) {
-                activeEl.innerText = currentActive + (currentLang === 'tr' ? ' Kişi' : ' Users');
+                activeEl.innerText = activeCount + (currentLang === 'tr' ? ' Kişi' : ' Users');
             }
 
-            // Her döngüde diğer duvarlardaki olası kiralama/değişiklikleri anlık yansıt
             calculateRealStats();
-        }, 4000);
+        }, 3000);
     </script>
 </body>
 </html>
