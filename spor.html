@@ -1,4 +1,172 @@
-<script>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">MozaikHane - Oyun & Esports Mozaik Duvarı</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%2338bdf8'/><stop offset='100%' stop-color='%237e22ce'/></linearGradient></defs><rect x='2' y='2' width='32' height='32' rx='8' fill='%230f172a' stroke='url(%23g)' stroke-width='2'/><g transform='translate(6, 6)'><rect x='0' y='0' width='9' height='9' rx='2' fill='%23ffffff'/><rect x='11' y='0' width='9' height='9' rx='2' fill='%230f172a' opacity='0.6'/><rect x='0' y='11' width='9' height='9' rx='2' fill='%230f172a' opacity='0.6'/><rect x='11' y='11' width='9' height='9' rx='2' fill='%23ffffff'/></g></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #0b0f19; color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 4px 20px; background: #111827; border-bottom: 1px solid #1f2937; flex-shrink: 0; }
+        
+        .logo-area { display: flex; align-items: center; gap: 10px; font-family: 'Orbitron', sans-serif; text-decoration: none; }
+        .logo-box { width: 32px; height: 32px; background: linear-gradient(135deg, #38bdf8, #7e22ce); border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); border: 1px solid rgba(255,255,255,0.15); flex-shrink: 0; }
+        .logo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; width: 18px; height: 18px; }
+        .logo-grid div:nth-child(1), .logo-grid div:nth-child(4) { background: #ffffff; border-radius: 2px; }
+        .logo-grid div:nth-child(2), .logo-grid div:nth-child(3) { background: rgba(15, 23, 42, 0.6); border-radius: 2px; }
+        
+        .logo-texts { display: flex; flex-direction: column; }
+        .logo-texts .brand-name { font-size: 0.95rem; letter-spacing: 0.5px; color: #fff; font-weight: 900; }
+        .logo-texts .brand-name span { color: #38bdf8; }
+        .logo-texts span.tagline { font-size: 0.4rem; color: #9ca3af; font-weight: 600; letter-spacing: 0.8px; font-family: 'Segoe UI', sans-serif; }
+
+        .header-center { display: flex; align-items: center; gap: 12px; }
+        .header-title h2 { font-size: 0.9rem; color: #38bdf8; letter-spacing: 1px; font-family: 'Orbitron', sans-serif; }
+        .header-title p { font-size: 0.5rem; color: #9ca3af; text-align: left; }
+
+        .header-right { display: flex; align-items: center; gap: 10px; }
+        .lang-select { background: #111827; color: #38bdf8; border: 1px solid #334155; padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; outline: none; font-family: 'Orbitron', sans-serif; }
+        .header-right-info { font-size: 0.6rem; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 3px 8px; border-radius: 5px; border: 1px solid rgba(56, 189, 248, 0.2); }
+        
+        .container { width: 100%; flex: 1; min-height: 0; margin: 0 auto; padding: 4px 10px; display: flex; flex-direction: column; overflow-x: auto; }
+        .grid-wrapper { flex: 1; min-height: 0; width: 100%; overflow-x: auto; overflow-y: hidden; display: flex; align-items: center; }
+        .mosaic-grid { display: grid; grid-template-columns: repeat(25, minmax(0, 1fr)); grid-template-rows: repeat(20, minmax(0, 1fr)); gap: 1px; width: 100%; min-width: 750px; height: 100%; background: #111827; padding: 2px; border: 1px solid #1f2937; border-radius: 6px; }
+        
+        .slot { background-color: #1e293b; border: 1px solid #334155; display: flex; align-items: center; justify-content: center; font-size: 0.35rem; color: #94a3b8; cursor: pointer; transition: all 0.2s ease; position: relative; border-radius: 1px; width: 100%; height: 100%; overflow: hidden; min-height: 0; }
+        .slot:hover { border-color: #f472b6; transform: scale(1.3); z-index: 10; box-shadow: 0 0 10px rgba(244,114,182,0.6); background-color: #0f172a; }
+
+        @keyframes bgGradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        @keyframes textGlow { 0% { text-shadow: 0 0 2px #fff, 0 0 5px #f472b6; } 100% { text-shadow: 0 0 8px #fff, 0 0 15px #db2777; } }
+
+        .banner-content { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; overflow: hidden; padding: 2px; position: relative; }
+        .marquee-wrapper { width: 100%; overflow: hidden; white-space: nowrap; position: absolute; top: 2px; left: 0; text-align: center; }
+        .marquee-text { display: inline-block; font-family: 'Orbitron', sans-serif; animation: scrollText linear infinite, textGlow 1.5s ease-in-out infinite alternate; color: #fff; letter-spacing: 1px; font-size: 0.35rem; font-weight: 700; padding: 0 50%; will-change: transform; }
+        .banner-logo { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; margin-top: 6px; filter: drop-shadow(0 0 4px rgba(0,0,0,0.6)); font-size: 0.75rem; }
+        .banner-logo img { max-width: 75%; max-height: 75%; object-fit: contain; border-radius: 4px; }
+        .platform-badge { position: absolute; top: 2px; right: 2px; background: transparent; border-radius: 3px; padding: 2px 4px; z-index: 5; display: flex; align-items: center; justify-content: center; font-size: 0.5rem; }
+
+        .slot.filled, .slot.large-banner, .slot.mega-banner { 
+            background: linear-gradient(270deg, #1e3a8a, #4c1d95, #be185d) !important; 
+            background-size: 200% 200% !important; 
+            border: 1px solid #f472b6 !important; 
+            animation: bgGradientShift 4s ease infinite; 
+        }
+
+        .slot.large-banner .marquee-text { font-size: 0.55rem; font-weight: 700; }
+        .slot.large-banner .banner-logo { font-size: 1.3rem; margin-top: 10px; }
+        .slot.large-banner .platform-badge { font-size: 0.8rem; top: 4px; right: 4px; padding: 3px 6px; }
+
+        .slot.mega-banner .marquee-text { font-size: 0.75rem; font-weight: 900; }
+        .slot.mega-banner .banner-logo { font-size: 1.8rem; margin-top: 14px; }
+        .slot.mega-banner .platform-badge { font-size: 1.2rem; top: 6px; right: 6px; padding: 4px 8px; }
+
+        .slot:hover::after { content: attr(data-tooltip); position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%); background: #be185d; color: #fff; padding: 4px 8px; border-radius: 5px; font-size: 0.65rem; white-space: nowrap; pointer-events: none; box-shadow: 0 4px 8px rgba(0,0,0,0.4); z-index: 20; }
+        .mosaic-footer { display: flex; justify-content: space-between; width: 100%; padding: 4px 0 2px 0; font-size: 0.6rem; color: #9ca3af; flex-shrink: 0; }
+        .mosaic-footer span { color: #38bdf8; font-weight: bold; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100; }
+        .modal-box { background: #111827; border: 1px solid #1f2937; border-top: 4px solid #38bdf8; border-radius: 8px; width: 400px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
+        .modal-close { position: absolute; top: 10px; right: 15px; font-size: 1.2rem; color: #9ca3af; cursor: pointer; }
+        .modal-close:hover { color: #fff; }
+        .modal-header h3 { color: #fff; font-size: 1.1rem; margin-bottom: 5px; font-family: 'Orbitron', sans-serif; }
+        .modal-header p { color: #38bdf8; font-size: 0.75rem; margin-bottom: 15px; font-weight: bold; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 0.75rem; color: #d1d5db; margin-bottom: 4px; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; background: #1f2937; border: 1px solid #374151; color: #fff; border-radius: 4px; font-size: 0.8rem; outline: none; }
+        .file-upload-area { display: none; margin-top: 8px; padding: 10px; border: 1px dashed #38bdf8; border-radius: 4px; background: rgba(56, 189, 248, 0.05); text-align: center; }
+        .file-upload-area input[type="file"] { font-size: 0.7rem; background: transparent; border: none; color: #9ca3af; }
+        .price-calc { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #334155; }
+        .price-calc span { font-size: 0.8rem; color: #9ca3af; }
+        .price-calc strong { font-size: 1.1rem; color: #38bdf8; font-family: 'Orbitron', sans-serif;}
+        .btn-submit { width: 100%; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; padding: 12px; font-size: 0.9rem; font-weight: bold; border-radius: 5px; cursor: pointer; transition: all 0.3s; font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
+        .btn-submit:hover { opacity: 0.9; box-shadow: 0 0 10px rgba(56,189,248,0.5); }
+
+        @media (max-width: 768px) {
+            header { padding: 4px 10px; }
+            .logo-texts span.tagline { display: none; }
+            .modal-box { width: 90%; padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-center">
+            <a href="index.html" class="logo-area">
+                <div class="logo-box">
+                    <div class="logo-grid">
+                        <div></div><div></div><div></div><div></div>
+                    </div>
+                </div>
+                <div class="logo-texts">
+                    <span class="brand-name">Mozaik<span>Hane</span></span>
+                    <span class="tagline">GLOBAL CREATOR GROWTH</span>
+                </div>
+            </a>
+        </div>
+        <div class="header-title">
+            <p id="pageSubTitle">Oyun & Esports Mozaik Duvarı</p>
+        </div>
+        <div class="header-right">
+            <select class="lang-select" id="langSelect" onchange="changeLanguage(this.value)">
+                <option value="tr">TR</option>
+                <option value="en">EN</option>
+            </select>
+            <div class="header-right-info"><span id="priceLabel">Birim Fiyat:</span> <b style="font-family: 'Orbitron', sans-serif;">100 TL</b></div>
+        </div>
+    </header>
+    <div class="container">
+        <div class="grid-wrapper">
+            <div class="mosaic-grid" id="oyunDuvari"></div>
+        </div>
+        <div class="mosaic-footer">
+            <p><span id="footerText">Boş kutuya tıklayarak alan kiralayabilirsin.</span></p>
+            <p><span id="occupancyText">Doluluk:</span> <span id="dolulukOrani">%0</span></p>
+        </div>
+    </div>
+    <div class="modal-overlay" id="checkoutModal">
+        <div class="modal-box">
+            <span class="modal-close" onclick="closeModal()">✕</span>
+            <div class="modal-header">
+                <h3 id="modalHead">Kanalını Vitrine Çıkar</h3>
+                <p id="selectedBoxInfo">Seçilen Merkez: Kutu #0</p>
+            </div>
+            <div class="form-group"><label id="lbl1">Kanal / Proje Adı</label><input type="text" id="channelInput" maxlength="30" placeholder="Örn: GameZone"></div>
+            <div class="form-group"><label id="lbl2">Platform URL (Link)</label><input type="text" id="urlInput" placeholder="https://..."></div>
+            <div class="form-group">
+                <label id="lbl3">Hedef Platform (Rozet)</label>
+                <select id="platformSelect">
+                    <option value="youtube">YouTube</option>
+                    <option value="twitch">Twitch</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="tiktok">TikTok</option>
+                    <option value="x">X (Twitter)</option>
+                    <option value="web">Web Sitesi</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label id="lbl4">Kutu Merkez Logosu</label>
+                <select id="logoModeSelect" onchange="toggleFileUpload()">
+                    <option value="platform">Platform İkonu</option>
+                    <option value="custom">Özel Logo Yükle</option>
+                </select>
+                <div class="file-upload-area" id="customLogoArea"><input type="file" id="customLogoFile" accept="image/*"></div>
+            </div>
+            <div class="form-group">
+                <label id="lbl5">Alan Boyutu</label>
+                <select id="sizeSelect" onchange="updatePrice()">
+                    <option value="1">1x1 Alan (100 TL)</option>
+                    <option value="4">2x2 Alan (400 TL)</option>
+                    <option value="9">3x3 Alan (900 TL)</option>
+                </select>
+            </div>
+            <div class="price-calc"><span id="lbl6">Toplam Tutar:</span><strong id="totalPrice">100 TL</strong></div>
+            <button type="button" class="btn-submit" id="submitBtn" onclick="simulatePurchase()">Ödeme Yap (Shopier)</button>
+        </div>
+    </div>
+    <script>
         const CATEGORY_KEY = "mozaikhane_grid_spor";
 
         function escapeHtml(str) {
@@ -26,7 +194,6 @@
         let currentSelectedNumber = 0;
         let savedGrid = {};
 
-        // Verileri güvenli şekilde yerel/ortak hafızadan al
         function fetchGridData() {
             try {
                 const data = localStorage.getItem(CATEGORY_KEY);
@@ -244,3 +411,5 @@
 
         fetchGridData();
     </script>
+</body>
+</html>
