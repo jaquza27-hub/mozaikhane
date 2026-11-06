@@ -1,6 +1,5 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Any, Dict
 
 app = FastAPI(title="MozaikHane API", version="1.0", redirect_slashes=False)
 
@@ -26,7 +25,6 @@ def increment_visitor():
     database["stats"]["total_visitors"] += 1
     return {"total_visitors": database["stats"]["total_visitors"]}
 
-# 405 hatasını önlemek için genel grid rotası
 @app.get("/api/grid")
 def get_all_grids():
     return database["grids"]
