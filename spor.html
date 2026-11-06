@@ -199,15 +199,16 @@
         let currentSelectedNumber = 0;
         let savedGrid = {};
 
-        // Render Backend API'den bu kategoriye ait verileri çek
+        // Render Backend API'den verileri çek (Bulut Senkronizasyonu)
         async function fetchGridData() {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/grid/${CATEGORY_KEY}`);
                 savedGrid = await response.json();
                 buildGrid();
             } catch (e) {
-                console.error("Sunucuya bağlanılamadı:", e);
-                savedGrid = {};
+                console.error("Sunucuya bağlanılamadı, yerel hafızaya dönülüyor:", e);
+                const localData = localStorage.getItem(`mozaikhane_grid_${CATEGORY_KEY}`);
+                savedGrid = localData ? JSON.parse(localData) : {};
                 buildGrid();
             }
         }
@@ -371,6 +372,9 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ grid_data: currentGrid })
                 });
+
+                // Yedek olarak yerel hafızaya da yaz
+                localStorage.setItem(`mozaikhane_grid_${CATEGORY_KEY}`, JSON.stringify(currentGrid));
 
                 closeModal();
                 fetchGridData();
