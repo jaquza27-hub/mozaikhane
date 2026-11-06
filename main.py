@@ -1,6 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Any, Dict
 
 app = FastAPI(title="MozaikHane API", version="1.0", redirect_slashes=False)
 
@@ -31,9 +30,13 @@ def get_grid(category: str):
     return database["grids"].get(category, {})
 
 @app.post("/api/grid/{category}")
-def save_grid(category: str, payload: Dict[str, Any]):
-    if "grid_data" in payload:
-        database["grids"][category] = payload["grid_data"]
-    else:
-        database["grids"][category] = payload
-    return {"status": "success", "category": category}
+async def save_grid(category: str, request: Request):
+    try:
+        body = await request.json()
+        if isinstance(body, dict) and "grid_data" in body:
+            database["grids"][category] = body["grid_data"]
+        else:
+            database["grids"][category] = body
+        return {"status": "success", "category": category}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
