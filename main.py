@@ -1,11 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import time
+from typing import Any, Dict
 
 app = FastAPI(title="MozaikHane API", version="1.0")
 
-# CORS ayarları (Tüm cihazlardan ve domainlerden gelen isteklere izin verilir)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -14,17 +13,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Ortak Bellek / Veritabanı Simülasyonu (Üretimde SQLite veya PostgreSQL'e bağlanabilir)
+# Ortak Bellek Veritabanı
 database = {
     "stats": {
         "total_visitors": 0,
         "active_users": 1
     },
-    "grids": {} # Her kategori için kiralama verileri burada tutulacak
+    "grids": {} 
 }
 
-class GridUpdateModel(BaseModel.Data):
-    grid_data: dict
+class GridPayload(BaseModel):
+    grid_data: Dict[str, Any] = {}
 
 @app.get("/api/stats")
 def get_stats():
@@ -40,6 +39,10 @@ def get_grid(category: str):
     return database["grids"].get(category, {})
 
 @app.post("/api/grid/{category}")
-def save_grid(category: str, payload: dict):
-    database["grids"][category] = payload.get("grid_data", {})
-    return {"status": "success", "category": category}
+def save_grid(category: str, payload: Dict[str, Any]):
+    # Gelen veri ister direkt dict olsun ister grid_data içinde gelsin, ikisini de yakala
+    if "grid_data" in payload:
+        database["grids"][category] = payload["grid_data"]
+    else:
+        database["grids"][category] = payload
+    return {"status": "success", "category": category, "saved_items": len(database["grids"][category])}
