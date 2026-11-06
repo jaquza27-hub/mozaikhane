@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="pageTitle">MozaikHane - Global Creator & Marka Platformu</title>
-    <!-- Üst Sekme (Favicon) - Yeni Geometrik Mozaik Tasarımı -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%2338bdf8'/><stop offset='100%' stop-color='%237e22ce'/></linearGradient></defs><rect x='2' y='2' width='32' height='32' rx='8' fill='%230f172a' stroke='url(%23g)' stroke-width='2'/><g transform='translate(6, 6)'><rect x='0' y='0' width='9' height='9' rx='2' fill='%23ffffff'/><rect x='11' y='0' width='9' height='9' rx='2' fill='%230f172a' opacity='0.6'/><rect x='0' y='11' width='9' height='9' rx='2' fill='%230f172a' opacity='0.6'/><rect x='11' y='11' width='9' height='9' rx='2' fill='%23ffffff'/></g></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -192,6 +191,14 @@
 
         document.getElementById('currentYear').innerText = new Date().getFullYear();
 
+        // Oturum başına sadece 1 kez ziyaretçi sayısını artır
+        let sessionId = localStorage.getItem('mozaikhane_session');
+        if (!sessionId) {
+            sessionId = 'user_' + Math.random().toString(36).substring(2, 9);
+            localStorage.setItem('mozaikhane_session', sessionId);
+            fetch(`${API_BASE_URL}/api/stats/visit`, { method: 'POST' }).catch(() => {});
+        }
+
         const categoriesData = [
             { id: 1, key: "spor", file: "spor.html", icon: "fa-solid fa-gamepad", trTitle: "Oyun & Esports", enTitle: "Gaming & Esports", trDesc: "Popüler oyunlar, yayıncılar ve espor takımları için mozaik vitrin alanı.", enDesc: "Mosaic showcase area for popular games, streamers and esports teams." },
             { id: 2, key: "teknoloji", file: "teknoloji.html", icon: "fa-solid fa-microchip", trTitle: "Teknoloji & Yazılım", enTitle: "Tech & Software", trDesc: "Yazılım projeleri, girişimler ve teknoloji kanallarının buluşma noktası.", enDesc: "Meeting point for software projects, startups and technology channels." },
@@ -212,10 +219,15 @@
 
         async function fetchAndUpdateStats() {
             try {
-                const visitRes = await fetch(`${API_BASE_URL}/api/stats/visit`, { method: 'POST' });
-                const visitData = await visitRes.json();
-                document.getElementById('statVisitorValue').innerText = visitData.total_visitors.toLocaleString('de-DE');
+                // Canlı İstatistikleri Çek
+                const statsRes = await fetch(`${API_BASE_URL}/api/stats`);
+                const statsData = await statsRes.json();
+                document.getElementById('statVisitorValue').innerText = (statsData.total_visitors || 0).toLocaleString('de-DE');
+                
+                let currentLang = localStorage.getItem('mozaikhane_lang') || 'tr';
+                document.getElementById('statActiveValue').innerText = (statsData.active_users || 1) + (currentLang === 'tr' ? ' Kişi' : ' Users');
 
+                // Doluluk Oranı Hesaplama
                 let totalOccupiedCells = 0;
                 const toplamKutuPerDuvar = 500;
                 const toplamKutuGenel = categoriesData.length * toplamKutuPerDuvar;
@@ -378,24 +390,23 @@
         const langSelect = document.getElementById('langSelect');
         if (langSelect) langSelect.value = savedLang;
         changeLanguage(savedLang);
-        fetchAndUpdateStats();
 
-        setInterval(() => {
+        // Canlı ping ve istatistik güncelleme döngüsü
+        async function sendPingAndFetchStats() {
             if (document.hidden) return;
+            try {
+                await fetch(`${API_BASE_URL}/api/stats/ping`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sessionId })
+                }).catch(() => {});
+                
+                fetchAndUpdateStats();
+            } catch (e) {}
+        }
 
-            const activeEl = document.getElementById('statActiveValue');
-            let currentLang = 'tr';
-            try { currentLang = localStorage.getItem('mozaikhane_lang') || 'tr'; } catch (e) {}
-            
-            const second = new Date().getSeconds();
-            const activeCount = 1 + (second % 5);
-
-            if (activeEl) {
-                activeEl.innerText = activeCount + (currentLang === 'tr' ? ' Kişi' : ' Users');
-            }
-
-            fetchAndUpdateStats();
-        }, 5000);
+        fetchAndUpdateStats();
+        setInterval(sendPingAndFetchStats, 10000);
     </script>
 </body>
 </html>
