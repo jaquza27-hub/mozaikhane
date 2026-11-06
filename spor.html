@@ -167,7 +167,8 @@
         </div>
     </div>
     <script>
-        const CATEGORY_KEY = "mozaikhane_grid_spor";
+        const CATEGORY_KEY = "spor";
+        const API_BASE_URL = "https://mozaikhane-backend.onrender.com";
 
         function escapeHtml(str) {
             if (!str) return '';
@@ -194,13 +195,17 @@
         let currentSelectedNumber = 0;
         let savedGrid = {};
 
-        function fetchGridData() {
+        // Render Bulut Sunucusundan Verileri Çek
+        async function fetchGridData() {
             try {
-                const data = localStorage.getItem(CATEGORY_KEY);
-                savedGrid = data ? JSON.parse(data) : {};
+                const response = await fetch(`${API_BASE_URL}/api/grid/${CATEGORY_KEY}`);
+                if (!response.ok) throw new Error("Sunucu yanıt vermedi");
+                savedGrid = await response.json();
                 buildGrid();
             } catch (e) {
-                savedGrid = {};
+                console.warn("Bulut sunucusuna bağlanılamadı, yerel hafızadan yükleniyor:", e);
+                const localData = localStorage.getItem(`mozaikhane_grid_${CATEGORY_KEY}`);
+                savedGrid = localData ? JSON.parse(localData) : {};
                 buildGrid();
             }
         }
@@ -326,33 +331,60 @@
             const platform = document.getElementById('platformSelect').value;
             const logoMode = document.getElementById('logoModeSelect').value;
 
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = lang === 'tr' ? "Sunucuya Bağlanıyor..." : "Connecting to Server...";
+            submitBtn.disabled = true;
+
             if (logoMode === 'custom') {
                 const fileInput = document.getElementById('customLogoFile');
                 if (fileInput.files && fileInput.files[0]) {
                     const file = fileInput.files[0];
                     if (file.size > 500 * 1024) {
                         alert(lang === 'tr' ? "HATA: Logo dosyası çok büyük (Max 500 KB olmalı)!" : "ERROR: Logo file is too large (Max 500 KB)!");
+                        submitBtn.innerText = originalText;
+                        submitBtn.disabled = false;
                         return;
                     }
                     const reader = new FileReader();
-                    reader.onload = e => saveToStorage(currentSelectedNumber, size, name, url, platform, logoMode, e.target.result);
+                    reader.onload = e => saveToServer(currentSelectedNumber, size, name, url, platform, logoMode, e.target.result, submitBtn, originalText);
                     reader.readAsDataURL(file);
                     return;
                 }
             }
-            saveToStorage(currentSelectedNumber, size, name, url, platform, logoMode, "");
+            saveToServer(currentSelectedNumber, size, name, url, platform, logoMode, "", submitBtn, originalText);
         }
 
-        function saveToStorage(id, size, name, url, platform, logoMode, customLogo) {
+        // Render Bulut Sunucusuna Kayıt İşlemi
+        async function saveToServer(id, size, name, url, platform, logoMode, customLogo, btn, btnText) {
             const expireTime = new Date().getTime() + (30 * 24 * 60 * 60 * 1000);
+            
             try {
-                let currentGrid = JSON.parse(localStorage.getItem(CATEGORY_KEY) || '{}');
+                // Önce sunucudan güncel grid verisini çek
+                const getRes = await fetch(`${API_BASE_URL}/api/grid/${CATEGORY_KEY}`);
+                let currentGrid = getRes.ok ? await getRes.json() : {};
+                
                 currentGrid[id] = { size, name, url, platform, logoMode, customLogo, expireTime };
-                localStorage.setItem(CATEGORY_KEY, JSON.stringify(currentGrid));
+
+                // Sunucuya POST isteği at
+                await fetch(`${API_BASE_URL}/api/grid/${CATEGORY_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ grid_data: currentGrid })
+                });
+
+                // Yerel yedek de al
+                localStorage.setItem(`mozaikhane_grid_${CATEGORY_KEY}`, JSON.stringify(currentGrid));
+
                 closeModal();
                 fetchGridData();
             } catch (e) {
-                alert("Kayıt sırasında bir hata oluştu!");
+                alert("Kayıt sırasında bir hata oluştu! Sunucu uyanıyor olabilir, lütfen tekrar deneyin.");
+            } finally {
+                if (btn) {
+                    btn.innerText = btnText;
+                    btn.disabled = false;
+                }
             }
         }
 
