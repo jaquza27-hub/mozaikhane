@@ -171,9 +171,7 @@
         </div>
     </div>
     <script>
-        // Kategori Anahtarı (Bu sayfa Oyun & Esports olduğu için 'spor')
-        const CATEGORY_KEY = "spor";
-        const API_BASE_URL = "https://mozaikhane-backend.onrender.com";
+        const CATEGORY_KEY = "mozaikhane_grid_spor";
 
         function escapeHtml(str) {
             if (!str) return '';
@@ -200,14 +198,14 @@
         let currentSelectedNumber = 0;
         let savedGrid = {};
 
-        // Render Backend API'den bu kategoriye ait verileri çek
-        async function fetchGridData() {
+        // Yerel Hafızadan Verileri Anında Çek ve Duvarı Kur
+        function fetchGridData() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/grid/${CATEGORY_KEY}`);
-                savedGrid = await response.json();
+                const data = localStorage.getItem(CATEGORY_KEY);
+                savedGrid = data ? JSON.parse(data) : {};
                 buildGrid();
             } catch (e) {
-                console.error("Sunucuya bağlanılamadı:", e);
+                console.error("Veri okuma hatası:", e);
                 savedGrid = {};
                 buildGrid();
             }
@@ -334,54 +332,36 @@
             const platform = document.getElementById('platformSelect').value;
             const logoMode = document.getElementById('logoModeSelect').value;
 
-            const submitBtn = document.getElementById('submitBtn');
-            const originalText = submitBtn.innerText;
-            submitBtn.innerText = lang === 'tr' ? "Sunucuya Bağlanıyor..." : "Connecting to Server...";
-            submitBtn.disabled = true;
-
             if (logoMode === 'custom') {
                 const fileInput = document.getElementById('customLogoFile');
                 if (fileInput.files && fileInput.files[0]) {
                     const file = fileInput.files[0];
                     if (file.size > 500 * 1024) {
                         alert(lang === 'tr' ? "HATA: Logo dosyası çok büyük (Max 500 KB olmalı)!" : "ERROR: Logo file is too large (Max 500 KB)!");
-                        submitBtn.innerText = originalText;
-                        submitBtn.disabled = false;
                         return;
                     }
                     const reader = new FileReader();
-                    reader.onload = e => saveToServer(currentSelectedNumber, size, name, url, platform, logoMode, e.target.result, submitBtn, originalText);
+                    reader.onload = e => saveToLocalStorage(currentSelectedNumber, size, name, url, platform, logoMode, e.target.result);
                     reader.readAsDataURL(file);
                     return;
                 }
             }
-            saveToServer(currentSelectedNumber, size, name, url, platform, logoMode, "", submitBtn, originalText);
+            saveToLocalStorage(currentSelectedNumber, size, name, url, platform, logoMode, "");
         }
 
-        async function saveToServer(id, size, name, url, platform, logoMode, customLogo, btn, btnText) {
+        function saveToLocalStorage(id, size, name, url, platform, logoMode, customLogo) {
             const expireTime = new Date().getTime() + (30 * 24 * 60 * 60 * 1000);
             
             try {
-                const getRes = await fetch(`${API_BASE_URL}/api/grid/${CATEGORY_KEY}`);
-                let currentGrid = await getRes.json();
-                
+                let currentGrid = JSON.parse(localStorage.getItem(CATEGORY_KEY) || '{}');
                 currentGrid[id] = { size, name, url, platform, logoMode, customLogo, expireTime };
-
-                await fetch(`${API_BASE_URL}/api/grid/${CATEGORY_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ grid_data: currentGrid })
-                });
-
+                
+                localStorage.setItem(CATEGORY_KEY, JSON.stringify(currentGrid));
+                
                 closeModal();
                 fetchGridData();
             } catch (e) {
-                alert("Kayıt sırasında bir hata oluştu! Sunucu uyanıyor olabilir, lütfen tekrar deneyin.");
-            } finally {
-                if (btn) {
-                    btn.innerText = btnText;
-                    btn.disabled = false;
-                }
+                alert("Kayıt sırasında bir hata oluştu!");
             }
         }
 
